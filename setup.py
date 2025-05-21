@@ -28,7 +28,7 @@ setup(
     install_requires=read_requirements('requirements.txt'),
     entry_points={
         'console_scripts': [
-            'owasp-dt-cli = owasp_dt_cli.cli:run',
+            'owasp-dtrack-cli = owasp_dt_cli.cli:run',
         ],
     },
 )
