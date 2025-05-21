@@ -14,7 +14,7 @@ def create_parser():
     # add_sbom_file(parser_convert)
     # parser_convert.set_defaults(func=handle_convert)
 
-    parser_upload = subparsers.add_parser("test", help="Uploads and tests a SBOM. Requires permission: BOM_UPLOAD")
+    parser_upload = subparsers.add_parser("test", help="Uploads and tests a SBOM and creates a findings report. Requires permission: BOM_UPLOAD")
     add_sbom_file(parser_upload)
     parser_upload.add_argument("--project-uuid", help="Project UUID", required=False)
     parser_upload.add_argument("--project-name", help="Project name", required=False)
