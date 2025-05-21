@@ -22,7 +22,7 @@ podman|docker \
  -eOWASP_DTRACK_URL="http://192.168.1.100:8081/api" \
  -eOWASP_DTRACK_VERIFY_SSL="false" \
  -eOWASP_DTRACK_API_KEY="xyz" \
- ghcr.io/mreiche/owasp-dependency-track-cli:main test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
+ ghcr.io/mreiche/owasp-dependency-track-cli:latest test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
 ```
 
 ## Environment variables
