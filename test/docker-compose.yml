@@ -150,21 +150,22 @@ services:
       retries: 3
     volumes:
     - "postgres-data:/var/lib/postgresql/data"
+    - "./postgres-init:/docker-entrypoint-initdb.d"
     restart: unless-stopped
 
-  trivy:
-    image: aquasec/trivy:latest
-    command:
-      - server
-      - --listen
-      - :8080
-      - --token
-      - katze123
-    volumes:
-      - "trivy-cache:/root/.cache/trivy"
-    restart: unless-stopped
+#  trivy:
+#    image: aquasec/trivy:latest
+#    command:
+#      - server
+#      - --listen
+#      - :8080
+#      - --token
+#      - katze123
+#    volumes:
+#      - "trivy-cache:/root/.cache/trivy"
+#    restart: unless-stopped
 
 volumes:
   dtrack-data: {}
   postgres-data: {}
-  trivy-cache: {}
+  #trivy-cache: {}
