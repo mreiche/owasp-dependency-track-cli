@@ -36,23 +36,27 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-#      - name: Set up Python
-#        uses: actions/setup-python@v3
-#        with:
-#          python-version: "3.13"
-#          cache: "pip"
-#      - run: pip install -r requirements.txt -r test-requirements.txt
-#      - name: Run tests
-#        env:
-#          PYTHONPATH: "."
-#        run: |
-#          pytest --junitxml=test-results/tests.xml test
-#      - name: Publish test results
-#        uses: EnricoMi/publish-unit-test-result-action@v2
-#        if: always()
-#        with:
-#          files: |
-#            test-results/**/*.xml
+      - name: Run docker-compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./test/test-compose.yml"
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.13"
+          cache: "pip"
+      - run: pip install -r requirements.txt -r test-requirements.txt
+      - name: Run tests
+        env:
+          PYTHONPATH: "."
+        run: |
+          pytest --junitxml=test-results/tests.xml test
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            test-results/**/*.xml
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5

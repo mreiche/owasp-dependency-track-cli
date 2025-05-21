@@ -49,6 +49,27 @@ Setup a user with API key and the following permissions:
    - SBOM_UPLOAD
    - PROJECT_CREATION_UPLOAD (for the auto-create feature)
 
+## Testing
+
+### Start the test environment
+```shell
+cd test
+podman|docker compose up
+```
+
+Preconfigured user:
+- admin
+- admin2
+
+Preconfigured API key:
+- 
+
+
+### Update the test database
+```shell
+podman run -it --rm --network=test_default  -v "$(pwd)/test:/test" postgres:latest pg_dump -h postgres -d dtrack -U "dtrack" -p "5432" -f "/test/postgres-init/init.sql"
+```
+
 ## References
 
 - This CLI is using the Python API client: https://github.com/mreiche/owasp-dependency-track-python-client
