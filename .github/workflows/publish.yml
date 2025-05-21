@@ -1,5 +1,9 @@
 name: Publish Python Package
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 on:
   release:
     types: [published]
@@ -11,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-container
 
       - name: Set up Python
         uses: actions/setup-python@v5
