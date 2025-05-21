@@ -1,6 +1,6 @@
-# OWASP Dependency Tracker CLI
+# OWASP Dependency Track CLI
 
-A CLI client for usage in CI/CD pipelines.
+A CLI client for in CI/CD usage.
 
 ## Test for findings
 
