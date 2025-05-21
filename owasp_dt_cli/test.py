@@ -10,6 +10,7 @@ from tinystream import Stream
 
 from owasp_dt_cli import api, config
 from owasp_dt_cli.log import LOGGER
+from owasp_dt_cli.models import compare_last_bom_import
 from owasp_dt_cli.output import print_findings_table
 from owasp_dt_cli.upload import handle_upload
 
@@ -47,10 +48,7 @@ def handle_test(args):
                 return project.is_latest == args.latest
             stream = stream.filter(_filter_latest)
 
-        def _compare_last_bom_import(a: Project, b: Project):
-            return b.last_bom_import - a.last_bom_import
-
-        opt = stream.sort(_compare_last_bom_import).next()
+        opt = stream.sort(compare_last_bom_import).next()
         assert opt.present, "Previous scanned project not found"
 
         project = opt.get()
