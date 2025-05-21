@@ -1,18 +1,17 @@
+from datetime import datetime
 from math import floor
 from pathlib import Path
 from time import sleep
 
 from is_empty import empty
-from lib.log import logging
-from lib import api, config
-from lib.api import create_client_from_env, get_findings_by_project_uuid
 from owasp_dt.api.bom import upload_bom
-from owasp_dt.api.project import get_projects
-from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse
 from owasp_dt.api.event import is_token_being_processed_1
-from lib.log import LOGGER
-from datetime import datetime
+from owasp_dt.api.project import get_projects
+from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, BomUploadResponse
 
+from lib import api, config
+from lib.api import get_findings_by_project_uuid
+from lib.log import LOGGER
 from lib.output import print_findings_table
 
 
@@ -41,8 +40,10 @@ def handle_test(args):
         body.parent_name = args.parent_name
 
     resp = upload_bom.sync_detailed(client=client, body=body)
-    upload = resp.parsed
     assert resp.status_code != 404, "Project not found"
+
+    upload = resp.parsed
+    assert isinstance(upload, BomUploadResponse), upload
 
     wait_time = 2
     test_timeout_sec = int(config.getenv("TEST_TIMEOUT_SEC", "300"))

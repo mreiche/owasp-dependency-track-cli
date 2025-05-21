@@ -1,56 +1,48 @@
 # OWASP Dependency Tracker CLI
 
-### Setup Azure OIDC
-
-- https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc
-
-## API Documentation
-
-- Open https://validator.swagger.io/ with `http://localhost:8081/api/openapi.json`
-
 ## Usage
 
-### Convert JSON to XML
+### Test for findings
+
 ```shell
-python convert.py sbom.json
+OWASP_DT_URL="http://localhost:8081/api"
+OWASP_DT_VERIFY_SSL="False"
+OWASP_DT_API_KEY="xyz"
+SEVERITY_THRESHOLD_HIGH="3"
+
+python main.py test --project-name webapp --auto-create test/test.sbom.xml
+```
+
+## Container usage
+
+### Test for findings
+```shell
+podman|docker \
+ run --rm -v"$(pwd):$(pwd)" \
+ -eOWASP_DT_URL="http://192.168.1.100:8081/api" \
+ -eOWASP_DT_VERIFY_SSL="false" \
+ -eOWASP_DT_API_KEY="xyz" \
+ owasp-dependency-track-cli test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
+```
+
+## Environment variables
+```shell
+OWASP_DT_URL="http://localhost:8081/api"  # Base-URL to OWASP Dependency Track API (mind '/api' as base path)
+OWASP_DT_VERIFY_SSL="False"  # Do not verify SSL
+OWASP_DT_API_KEY="xyz"  # You OWASP DT API Key
+SEVERITY_THRESHOLD_HIGH="-1"  # Threshold for HIGH severity findings
+SEVERITY_THRESHOLD_MEDIUM="-1"  # Threshold for MEDIUM severity findings
+SEVERITY_THRESHOLD_LOW="-1"  # Threshold for LOW severity findings
+SEVERITY_THRESHOLD_UNASSIGNED="-1"  # Threshold for LOW severity findings
+TEST_TIMEOUT_SEC="300"  # Timeout in seconds for waiting OWASP DT finished scanning
 ```
 
 ## API-Key
 
 Setup a user with API key and the following permissions:
 - VIEW_VULNERABILITY
+- SBOM_UPLOAD
 
-### Upload BOM
-```shell
-export API_KEY="odt_6HHFfo9k_LDYiufseAbTHe1h3CYkwN15wohg6SGAG"
-export API_BASE_URL="http://localhost:8081/api"
-export PROJECT_NAME="webapp"
-export BOM_FILE="test-files/webapp-sbom.xml"
-export PROJECT_NAME="iam-gatekeeper"
-export BOM_FILE="gatekeeper-sbom.xml"
-export PROJECT_NAME="iam-bom"
-export BOM_FILE="iam-sbom.xml"
-export PROJECT_NAME="dependency-tracker"
-export BOM_FILE="test-files/dependency-track-sbom.json"
-
-curl -X "POST" "${API_BASE_URL}/v1/bom" \
-     -H 'Content-Type: multipart/form-data' \
-     -H "X-Api-Key: ${API_KEY}" \
-     -F "autoCreate=true" \
-     -F "projectName=${PROJECT_NAME}" \
-     -F "projectVersion=latest" \
-     -F "isLatest=true" \
-     -F "parentUUID=15485c6a-7395-48f8-bcc7-1db3148eb76b" \
-     -F "bom=@${BOM_FILE}"
-
-# Es geht wohl auch JSON: -F "bom=@json.json;type=application/json"
-```
-
-### Get Projects
-```shell
-curl -X "GET" "${API_BASE_URL}/v1/projects" \
-     -H "X-Api-Key: ${API_KEY}"
-```
 
 ## SBOM generation
 
@@ -105,7 +97,16 @@ http://trivy:8080
 
 https://github.com/DependencyTrack/helm-charts
 
+
+### Setup Azure OIDC
+
+- https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc
+
 ## API usage
+
+## API Documentation
+
+- Open https://validator.swagger.io/ with `http://localhost:8081/api/openapi.json`
 
 ### Violation tests
 - Check if event is processing: `/v1/event/token/{uuid}`

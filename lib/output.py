@@ -19,7 +19,7 @@ def shorten(text: str, max_length: int = 100):
         return text
 
 
-def color_severity(severity: str):
+def format_severity(severity: str):
     normalized = severity.upper()
     if normalized in __severity_color_map:
         color = __severity_color_map[normalized]
@@ -27,6 +27,12 @@ def color_severity(severity: str):
         color = Fore.LIGHTRED_EX
 
     return color + severity + Style.RESET_ALL
+
+def format_component(finding: Finding):
+    component = finding["component"]["name"]
+    if "group" in finding["component"]:
+        component = f"{finding["component"]["group"]}.{component}"
+    return component
 
 def print_findings_table(findings: list[Finding]):
     headers = [
@@ -38,9 +44,9 @@ def print_findings_table(findings: list[Finding]):
     data = []
     for finding in findings:
         data.append([
-            f'{finding["component"]["group"]}.{finding["component"]["name"]}',
+            f'{(format_component(finding))}',
             f'{finding["component"]["version"]} ({finding["component"]["latestVersion"]})',
             f'{finding["vulnerability"]["vulnId"]} ({shorten(finding["vulnerability"]["description"])})',
-            color_severity(finding["vulnerability"]["severity"]),
+            format_severity(finding["vulnerability"]["severity"]),
         ])
     print(tabulate(data, headers=headers, tablefmt="grid"))
