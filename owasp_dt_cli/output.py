@@ -28,6 +28,12 @@ def format_severity(severity: str):
 
     return color + severity + Style.RESET_ALL
 
+def format_version(finding: Finding):
+    version = finding["component"]["version"]
+    if "latestVersion" in finding["component"]:
+        version += f" ({finding["component"]["latestVersion"]})"
+    return version
+
 def format_component(finding: Finding):
     component = finding["component"]["name"]
     if "group" in finding["component"]:
@@ -45,7 +51,7 @@ def print_findings_table(findings: list[Finding]):
     for finding in findings:
         data.append([
             f'{(format_component(finding))}',
-            f'{finding["component"]["version"]} ({finding["component"]["latestVersion"]})',
+            f'{format_version(finding)}',
             f'{finding["vulnerability"]["vulnId"]} ({shorten(finding["vulnerability"]["description"])})',
             format_severity(finding["vulnerability"]["severity"]),
         ])
