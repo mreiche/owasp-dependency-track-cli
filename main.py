@@ -1,10 +1,3 @@
-from lib.args import create_parser
-from lib.log import LOGGER
+import owasp_dt_cli.cli
 
-parser = create_parser()
-args = parser.parse_args()
-try:
-    args.func(args)
-except Exception as e:
-    LOGGER.error(e)
-    exit(1)
+owasp_dt_cli.cli.run()

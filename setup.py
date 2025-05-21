@@ -15,7 +15,6 @@ def read_requirements(filename):
             if line.strip() and not line.startswith('#')
         ]
 
-
 setup(
     name="owasp-dependency-track-cli",
     description="Inofficial OWASP Dependency Track CLI",
@@ -28,7 +27,7 @@ setup(
     install_requires=read_requirements('requirements.txt'),
     entry_points={
         'console_scripts': [
-            'owasp-dt = main',
+            'owasp-dt-cli = owasp_dt_cli.cli:run',
         ],
     },
 )

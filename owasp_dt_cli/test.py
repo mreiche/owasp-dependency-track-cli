@@ -9,10 +9,9 @@ from owasp_dt.api.event import is_token_being_processed_1
 from owasp_dt.api.project import get_projects
 from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, BomUploadResponse
 
-from lib import api, config
-from lib.api import get_findings_by_project_uuid
-from lib.log import LOGGER
-from lib.output import print_findings_table
+from owasp_dt_cli import api, config
+from owasp_dt_cli.log import LOGGER
+from owasp_dt_cli.output import print_findings_table
 
 
 def handle_test(args):
@@ -67,7 +66,7 @@ def handle_test(args):
         assert len(projects) == 1, f"Multiple projects found matching '{args.project_name}'"
         args.project_uuid = projects[0].uuid
 
-    findings = get_findings_by_project_uuid(client=client, uuid=args.project_uuid)
+    findings = api.get_findings_by_project_uuid(client=client, uuid=args.project_uuid)
     if len(findings):
         print_findings_table(findings)
 

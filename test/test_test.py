@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from common import load_env
-from lib.args import create_parser
+from owasp_dt_cli.args import create_parser
 
 __base_dir = Path(__file__).parent
 
