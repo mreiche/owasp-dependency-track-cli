@@ -1,5 +1,13 @@
 name: 'Build OCI image'
 description: 'Builds a OCI container image'
+inputs:
+  user:
+    required: true
+    description: User for publishing the image
+  password:
+    required: true
+    description: Password for publish user
+
 runs:
   using: 'composite'
   steps:
@@ -12,8 +20,8 @@ runs:
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ inputs.user }}
+        password: ${{ inputs.password }}
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx

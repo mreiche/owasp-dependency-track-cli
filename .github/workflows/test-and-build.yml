@@ -61,3 +61,6 @@ jobs:
           files: |
             test-results/**/*.xml
       - uses: ./.github/actions/build-container
+        with:
+          user: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
