@@ -1,8 +1,8 @@
 # OWASP Dependency Tracker CLI
 
-## Usage
+A CLI client for usage in CI/CD pipelines.
 
-### Test for findings
+## Test for findings
 
 ```shell
 OWASP_DT_URL="http://localhost:8081/api"
@@ -13,9 +13,8 @@ SEVERITY_THRESHOLD_HIGH="3"
 python main.py test --project-name webapp --auto-create test/test.sbom.xml
 ```
 
-## Container usage
+As Container runtime:
 
-### Test for findings
 ```shell
 podman|docker \
  run --rm -v"$(pwd):$(pwd)" \
@@ -57,12 +56,8 @@ cd test
 podman|docker compose up
 ```
 
-Preconfigured user:
-- admin
-- admin2
-
-Preconfigured API key:
-- 
+- Preconfigured user: `admin:admin2`
+- Preconfigured API key: see `test/test.env`
 
 
 ### Update the test database
