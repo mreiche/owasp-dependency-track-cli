@@ -1,2 +1,5 @@
 .idea
 *.iml
+build
+dist
+owasp_dependency_track_*
