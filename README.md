@@ -5,12 +5,13 @@ A CLI client for usage in CI/CD pipelines.
 ## Test for findings
 
 ```shell
-OWASP_DT_URL="http://localhost:8081/api"
-OWASP_DT_VERIFY_SSL="False"
-OWASP_DT_API_KEY="xyz"
-SEVERITY_THRESHOLD_HIGH="3"
+export OWASP_DT_URL="http://localhost:8081/api"
+export OWASP_DT_VERIFY_SSL="False"
+export OWASP_DT_API_KEY="xyz"
+export SEVERITY_THRESHOLD_HIGH="3"
 
-python main.py test --project-name webapp --auto-create test/test.sbom.xml
+pip install owasp-dependency-track-cli
+owasp-dt-cli test --project-name webapp --auto-create test/test.sbom.xml
 ```
 
 As Container runtime:
