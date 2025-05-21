@@ -15,6 +15,11 @@
 python convert.py sbom.json
 ```
 
+## API-Key
+
+Setup a user with API key and the following permissions:
+- VIEW_VULNERABILITY
+
 ### Upload BOM
 ```shell
 export API_KEY="odt_6HHFfo9k_LDYiufseAbTHe1h3CYkwN15wohg6SGAG"

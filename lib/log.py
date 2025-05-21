@@ -7,3 +7,4 @@ if not isinstance(numeric_level, int):
     raise ValueError('Invalid log level: %s' % numeric_level)
 
 logging.basicConfig(level=numeric_level)
+LOGGER = logging.getLogger("owasp-dt-cli")

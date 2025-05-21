@@ -1,1 +1,4 @@
-owasp-dependency-track-client==0.0.1
+owasp-dependency-track-client==0.0.3
+is_empty
+tabulate
+colorama

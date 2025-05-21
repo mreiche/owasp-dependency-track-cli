@@ -1,6 +1,11 @@
+from typing import TypedDict
+
+from owasp_dt.models import Component, Vulnerability, FindingAttributionAnalyzerIdentity
+
 from lib.config import reqenv, parse_true, getenv
 from owasp_dt import Client
-
+from owasp_dt.api.finding import get_findings_by_project
+import json
 
 def create_client_from_env() -> Client:
     return Client(
@@ -9,5 +14,15 @@ def create_client_from_env() -> Client:
             "X-Api-Key": reqenv("OWASP_DT_API_KEY")
         },
         verify_ssl=getenv("OWASP_DT_VERIFY_SSL", "1", parse_true),
-        raise_on_unexpected_status=True,
+        raise_on_unexpected_status=False,
     )
+
+# Wrappers for https://github.com/openapi-generators/openapi-python-client/issues/1256
+class Finding(TypedDict, total=False):
+    component: Component
+    vulnerability: Vulnerability
+
+def get_findings_by_project_uuid(client: Client, uuid: str) -> list[Finding]:
+    resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
+    assert resp.status_code != 401
+    return json.loads(resp.content)
