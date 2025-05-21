@@ -25,7 +25,7 @@ def client():
 
 def test_upload_sbom(client: owasp_dt.Client):
     global __upload_token
-    with open(__base_dir / "test.sbom.json") as sbom_file:
+    with open(__base_dir / "test.sbom.xml") as sbom_file:
         resp = upload_bom.sync_detailed(client=client, body=UploadBomBody(
             project_name="test-project",
             auto_create=True,
