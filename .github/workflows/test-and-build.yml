@@ -41,7 +41,7 @@ jobs:
         with:
           compose-file: "./test/docker-compose.yml"
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
           cache: "pip"
