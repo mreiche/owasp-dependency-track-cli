@@ -1,3 +1,6 @@
 pytest
 dotenv
 pytest-depends
+setuptools
+wheel
+twine
