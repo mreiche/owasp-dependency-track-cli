@@ -29,13 +29,13 @@ podman|docker \
 ```shell
 OWASP_DTRACK_URL="http://localhost:8081/api"  # Base-URL to OWASP Dependency Track API (mind '/api' as base path)
 OWASP_DTRACK_VERIFY_SSL="False"               # Do not verify SSL
-OWASP_DTRACK_API_KEY="xyz"                    # You OWASP DT API Key
-SEVERITY_THRESHOLD_HIGH="-1"              # Threshold for HIGH severity findings
-SEVERITY_THRESHOLD_MEDIUM="-1"            # Threshold for MEDIUM severity findings
-SEVERITY_THRESHOLD_LOW="-1"               # Threshold for LOW severity findings
-SEVERITY_THRESHOLD_UNASSIGNED="-1"        # Threshold for UNASSIGNED severity findings
-TEST_TIMEOUT_SEC="300"                    # Timeout in seconds for waiting OWASP DT finished scanning
-HTTPS_PROXY=""                            # URL for for HTTP(S) proxy
+OWASP_DTRACK_API_KEY="xyz"                    # Your OWASP Dependency Track API Key (see below)
+SEVERITY_THRESHOLD_HIGH="-1"                  # Threshold for HIGH severity findings
+SEVERITY_THRESHOLD_MEDIUM="-1"                # Threshold for MEDIUM severity findings
+SEVERITY_THRESHOLD_LOW="-1"                   # Threshold for LOW severity findings
+SEVERITY_THRESHOLD_UNASSIGNED="-1"            # Threshold for UNASSIGNED severity findings
+TEST_TIMEOUT_SEC="300"                        # Timeout in seconds for waiting OWASP DT finished scanning
+HTTPS_PROXY=""                                # URL for for HTTP(S) proxy
 ```
 
 ## API-Key
