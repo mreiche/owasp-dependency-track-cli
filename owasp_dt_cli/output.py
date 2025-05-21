@@ -1,7 +1,7 @@
+from colorama import Fore, Style, init
 from tabulate import tabulate
-from colorama import Fore, Back, Style, init
 
-from lib.api import Finding
+from owasp_dt_cli.api import Finding
 
 init(autoreset=True)
 

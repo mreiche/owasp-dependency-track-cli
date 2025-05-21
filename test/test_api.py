@@ -5,7 +5,7 @@ import pytest
 
 import owasp_dt
 from common import load_env
-from lib.api import create_client_from_env, get_findings_by_project_uuid
+from owasp_dt_cli.api import create_client_from_env, get_findings_by_project_uuid
 from owasp_dt.api.bom import upload_bom
 from owasp_dt.api.project import get_projects
 from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse

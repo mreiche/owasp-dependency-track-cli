@@ -3,7 +3,7 @@ from typing import TypedDict
 
 from owasp_dt.models import Component, Vulnerability, FindingAttributionAnalyzerIdentity
 
-from lib.config import reqenv, parse_true, getenv
+from owasp_dt_cli.config import reqenv, parse_true, getenv
 from owasp_dt import Client
 from owasp_dt.api.finding import get_findings_by_project
 import json

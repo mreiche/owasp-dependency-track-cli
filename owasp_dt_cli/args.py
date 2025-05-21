@@ -1,4 +1,4 @@
-from lib.test import handle_test
+from owasp_dt_cli.test import handle_test
 import argparse
 import pathlib
 
