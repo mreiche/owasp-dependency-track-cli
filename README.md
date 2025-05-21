@@ -22,7 +22,7 @@ podman|docker \
  -eOWASP_DT_URL="http://192.168.1.100:8081/api" \
  -eOWASP_DT_VERIFY_SSL="false" \
  -eOWASP_DT_API_KEY="xyz" \
- owasp-dependency-track-cli test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
+ ghcr.io/mreiche/owasp-dependency-track-cli:main test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
 ```
 
 ## Environment variables
@@ -33,15 +33,20 @@ OWASP_DT_API_KEY="xyz"  # You OWASP DT API Key
 SEVERITY_THRESHOLD_HIGH="-1"  # Threshold for HIGH severity findings
 SEVERITY_THRESHOLD_MEDIUM="-1"  # Threshold for MEDIUM severity findings
 SEVERITY_THRESHOLD_LOW="-1"  # Threshold for LOW severity findings
-SEVERITY_THRESHOLD_UNASSIGNED="-1"  # Threshold for LOW severity findings
+SEVERITY_THRESHOLD_UNASSIGNED="-1"  # Threshold for UNASSIGNED severity findings
 TEST_TIMEOUT_SEC="300"  # Timeout in seconds for waiting OWASP DT finished scanning
 ```
 
 ## API-Key
 
 Setup a user with API key and the following permissions:
-- VIEW_VULNERABILITY
-- SBOM_UPLOAD
+
+1. Goto *Teams* -> *Automation*
+1. Add *API-Key*
+1. Add *Permissions*
+   - VIEW_VULNERABILITY
+   - SBOM_UPLOAD
+   - PROJECT_CREATION_UPLOAD (for the auto-create feature)
 
 
 ## SBOM generation
@@ -124,17 +129,6 @@ podman machine set --memory=6144
 podman machine start
 podman compose up
 ```
-
-### Auth
-
-- username: `admin`
-- password: `admin`
-
-### API-Key
-
-- Goto *Teams* -> *Automation*
-- Add *API-Key*
-- Add *Permissions*
 
 ## Troubleshooting
 
