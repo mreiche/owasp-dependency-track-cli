@@ -1,3 +1,4 @@
+import os
 from typing import TypedDict
 
 from owasp_dt.models import Component, Vulnerability, FindingAttributionAnalyzerIdentity
@@ -15,6 +16,10 @@ def create_client_from_env() -> Client:
         },
         verify_ssl=getenv("OWASP_DT_VERIFY_SSL", "1", parse_true),
         raise_on_unexpected_status=False,
+        httpx_args={
+            "proxy": getenv("HTTPS_PROXY", lambda: getenv("HTTP_PROXY", None)),
+            #"no_proxy": getenv("NO_PROXY", "")
+        }
     )
 
 # Wrappers for https://github.com/openapi-generators/openapi-python-client/issues/1256

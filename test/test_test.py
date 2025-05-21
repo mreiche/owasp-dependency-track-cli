@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import httpx
+import pytest
+
 from common import load_env
 from lib.args import create_parser
 
@@ -20,3 +23,8 @@ def test_test():
     ])
 
     args.func(args)
+
+def test_proxy_fails(monkeypatch):
+    monkeypatch.setenv("HTTP_PROXY", "http://localhost:3128")
+    with pytest.raises(expected_exception=httpx.ConnectError):
+        test_test()
