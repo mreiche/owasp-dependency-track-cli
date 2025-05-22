@@ -6,7 +6,7 @@
 
 A CLI for CI/CD usage.
 
-## Test for findings
+## Usage
 
 ```shell
 export OWASP_DTRACK_URL="http://localhost:8081/api"
@@ -29,6 +29,12 @@ podman|docker \
  ghcr.io/mreiche/owasp-dependency-track-cli:latest test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
 ```
 
+## Features
+
+- `upload`: Uploads a SBOM only
+- `analyze`: Analyzes a project by creating a report
+- `test`: Uploads and analyzes a SBOM
+
 ## Environment variables
 ```shell
 OWASP_DTRACK_URL="http://localhost:8081/api"  # Base-URL to OWASP Dependency Track API (mind '/api' as base path)
@@ -38,7 +44,7 @@ SEVERITY_THRESHOLD_HIGH="-1"                  # Threshold for HIGH severity find
 SEVERITY_THRESHOLD_MEDIUM="-1"                # Threshold for MEDIUM severity findings
 SEVERITY_THRESHOLD_LOW="-1"                   # Threshold for LOW severity findings
 SEVERITY_THRESHOLD_UNASSIGNED="-1"            # Threshold for UNASSIGNED severity findings
-TEST_TIMEOUT_SEC="300"                        # Timeout in seconds for waiting OWASP DT finished scanning
+ANALYZE_TIMEOUT_SEC="300"                     # Timeout for the analyzing response in seconds
 HTTPS_PROXY=""                                # URL for for HTTP(S) proxy
 ```
 
