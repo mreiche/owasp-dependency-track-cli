@@ -19,7 +19,10 @@ def add_project_params(parser: ArgumentParser):
     parser.add_argument("--parent-name", help="Parent project name", required=False)
 
 def create_parser():
-    parser = argparse.ArgumentParser(description="OWASP Dependency Track CLI")
+    parser = argparse.ArgumentParser(
+        description="OWASP Dependency Track CLI",
+        exit_on_error=False
+    )
     #parser.add_argument("--sbom", help="SBOM file path", default="katze")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
