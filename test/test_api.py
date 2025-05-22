@@ -64,7 +64,7 @@ def test_search_project_by_name(client: owasp_dt.Client):
     assert projects[0].uuid is not None
     __project_id = projects[0].uuid
 
-@pytest.mark.depends(on=['test_search_project_by_name','test_get_scan_status'])
+@pytest.mark.depends(on=['test_search_project_by_name','test_get_scan_status','test_get_vulnerabilities'])
 def test_get_project_findings(client: owasp_dt.Client):
     findings = get_findings_by_project_uuid(client=client, uuid=__project_id)
     assert len(findings) > 0
