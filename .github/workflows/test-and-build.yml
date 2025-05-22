@@ -62,10 +62,11 @@ jobs:
       - name: Generate coverage report
         run: coverage xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         continue-on-error: true
         with:
-          fail_ci_if_error: true
+          #fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           verbose: true
       - uses: ./.github/actions/build-container
