@@ -1,4 +1,4 @@
-![Tests Status](https://github.com/mreiche/owasp-dependency-track-cli/actions/workflows/test-and-build.yml/badge.svg)
+[![Tests Status](https://github.com/mreiche/owasp-dependency-track-cli/actions/workflows/test-and-build.yml/badge.svg)](https://github.com/mreiche/owasp-dependency-track-cli/actions/workflows/test-and-build.yml)
 [![Code Coverage Status](https://codecov.io/github/mreiche/owasp-dependency-track-cli/branch/main/graph/badge.svg)](https://app.codecov.io/github/mreiche/owasp-dependency-track-cli)
 [![PyPI version](https://badge.fury.io/py/owasp-dependency-track-cli.svg)](https://badge.fury.io/py/owasp-dependency-track-cli)
 
