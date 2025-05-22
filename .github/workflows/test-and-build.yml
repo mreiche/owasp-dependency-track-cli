@@ -8,19 +8,18 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - lib/**
+      - owasp_dt_cli/**
       - test/**
-      - main.py
       - Dockerfile
       - requirements.txt
   pull_request:
     branches: [ "main" ]
     paths:
-      - lib/**
+      - owasp_dt_cli/**
       - test/**
-      - main.py
       - Dockerfile
       - requirements.txt
+      - ./.github/**
   workflow_dispatch:
 
 permissions:
