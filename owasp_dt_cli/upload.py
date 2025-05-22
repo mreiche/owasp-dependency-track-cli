@@ -7,12 +7,14 @@ from owasp_dt.models import UploadBomBody, BomUploadResponse
 
 from owasp_dt_cli import api
 
+def assert_project_identity(args):
+    assert not empty(args.project_uuid) or not empty(args.project_name), "At least a project UUID or a project name is required"
 
 def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     sbom_file: Path = args.sbom
     assert sbom_file.exists(), f"{sbom_file} doesn't exists"
 
-    assert not empty(args.project_uuid) or not empty(args.project_name), "At least a project UUID or a project name is required"
+    assert_project_identity(args)
 
     client = api.create_client_from_env()
     body = UploadBomBody(

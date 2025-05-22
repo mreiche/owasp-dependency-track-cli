@@ -10,6 +10,8 @@ from owasp_dt.api.bom import upload_bom
 from owasp_dt.api.project import get_projects
 from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse
 from owasp_dt.api.event import is_token_being_processed_1
+from owasp_dt.api.metrics import get_project_current_metrics
+from owasp_dt.api.violation import get_violations_by_project
 
 __base_dir = Path(__file__).parent
 
@@ -64,3 +66,13 @@ def test_search_project_by_name(client: owasp_dt.Client):
 def test_get_project_findings(client: owasp_dt.Client):
     findings = get_findings_by_project_uuid(client=client, uuid=__project_id)
     assert len(findings) > 0
+
+@pytest.mark.depends(on=['test_search_project_by_name','test_get_scan_status'])
+def test_get_project_metrics(client: owasp_dt.Client):
+    resp = get_project_current_metrics.sync_detailed(client=client, uuid=__project_id)
+    metrics = resp.parsed
+
+@pytest.mark.depends(on=['test_search_project_by_name','test_get_scan_status'])
+def test_get_project_violations(client: owasp_dt.Client):
+    resp = get_violations_by_project.sync_detailed(client=client, uuid=__project_id)
+    violations = resp.parsed

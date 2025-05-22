@@ -2,14 +2,10 @@ from pathlib import Path
 
 import httpx
 import pytest
-from tinystream import Stream
 
 from common import load_env
-from owasp_dt_cli.api import create_client_from_env
+from owasp_dt_cli import api
 from owasp_dt_cli.args import create_parser
-from owasp_dt.api.project import get_projects
-
-from owasp_dt_cli.models import compare_last_bom_import
 
 __base_dir = Path(__file__).parent
 
@@ -36,11 +32,8 @@ def test_test():
 
 @pytest.mark.depends(on=['test_test'])
 def test_uploaded():
-    client = create_client_from_env()
-    resp = get_projects.sync_detailed(client=client, name="test-project")
-    projects = resp.parsed
-    opt = Stream(projects).sort(compare_last_bom_import).next()
-    assert opt.present
+    client = api.create_client_from_env()
+    opt = api.find_project_by_name(client=client, name="test-project")
     project = opt.get()
     assert project.version == "latest"
     assert project.is_latest == True

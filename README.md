@@ -6,7 +6,7 @@
 
 A CLI for CI/CD usage.
 
-## Test for findings
+## Usage
 
 ```shell
 export OWASP_DTRACK_URL="http://localhost:8081/api"
@@ -28,6 +28,12 @@ podman|docker \
  -eOWASP_DTRACK_API_KEY="xyz" \
  ghcr.io/mreiche/owasp-dependency-track-cli:latest test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
 ```
+
+## Features
+
+- `upload`: Uploads a SBOM only
+- `analyze`: Analyzes a project by creating a report
+- `test`: Uploads and analyzes a SBOM
 
 ## Environment variables
 ```shell
