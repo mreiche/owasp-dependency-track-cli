@@ -53,11 +53,12 @@ HTTPS_PROXY=""                                # URL for for HTTP(S) proxy
 Setup a user with API key and the following permissions:
 
 1. Goto *Teams* -> *Automation*
-1. Add *API-Key*
-1. Add *Permissions*
-   - VIEW_VULNERABILITY
+2. Add *API-Key*
+3. Add *Permissions*
    - SBOM_UPLOAD
    - PROJECT_CREATION_UPLOAD (for the auto-create feature)
+   - VIEW_VULNERABILITY
+   - VIEW_POLICY_VIOLATION
 
 ## Testing
 
