@@ -85,7 +85,7 @@ def test_get_vulnerability_metrics(client: owasp_dt.Client):
     vulnerabilities = resp.parsed
     assert len(vulnerabilities) > 0
 
-@pytest.mark.xfail(reason="API client is missing models")
+@pytest.mark.xfail(reason="API client is missing models: https://github.com/openapi-generators/openapi-python-client/issues/1256")
 def test_get_vulnerabilities(client: owasp_dt.Client):
     resp = get_all_vulnerabilities.sync_detailed(client=client, page_size=1)
     vulnerabilities = resp.parsed
