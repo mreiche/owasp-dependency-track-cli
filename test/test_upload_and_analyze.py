@@ -1,4 +1,5 @@
 from pathlib import Path
+from time import sleep
 
 import pytest
 
@@ -28,13 +29,24 @@ def test_upload():
 @pytest.mark.depends(on=['test_upload'])
 def test_analyze():
     parser = create_parser()
-    args = parser.parse_args([
-        "analyze",
-        "--project-name",
-        "test-upload",
-        "--project-version",
-        "katze",
-        "--latest",
-    ])
+    exception = None
 
-    args.func(args)
+    for i in range(10):
+        try:
+            exception = None
+            args = parser.parse_args([
+                "analyze",
+                "--project-name",
+                "test-upload",
+                "--project-version",
+                "katze",
+                "--latest",
+            ])
+            args.func(args)
+            break
+        except KeyError as e:
+            exception = e
+        sleep(2)
+
+    if exception:
+        raise exception

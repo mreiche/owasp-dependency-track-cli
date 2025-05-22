@@ -99,6 +99,7 @@ services:
       ALPINE_DATABASE_DRIVER: "org.postgresql.Driver"
       ALPINE_DATABASE_USERNAME: "dtrack"
       ALPINE_DATABASE_PASSWORD: "dtrack"
+      # ALPINE_HTTP_PROXY_ADDRESS: "proxy.example.com"
     deploy:
       resources:
         limits:
