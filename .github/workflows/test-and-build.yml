@@ -8,19 +8,18 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - lib/**
+      - owasp_dt_cli/**
       - test/**
-      - main.py
       - Dockerfile
       - requirements.txt
   pull_request:
     branches: [ "main" ]
     paths:
-      - lib/**
+      - owasp_dt_cli/**
       - test/**
-      - main.py
       - Dockerfile
       - requirements.txt
+      - ./.github/**
   workflow_dispatch:
 
 permissions:
@@ -53,13 +52,22 @@ jobs:
         env:
           PYTHONPATH: "."
         run: |
-          pytest --junitxml=test-results/tests.xml test
+          pytest --junitxml=./test-results/tests.xml --cov=./owasp_dt_cli ./test
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: |
             test-results/**/*.xml
+      - name: Generate coverage report
+        run: coverage xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        continue-on-error: true
+        with:
+          fail_ci_if_error: true
+          files: ./coverage.xml
+          verbose: true
       - uses: ./.github/actions/build-container
         with:
           user: ${{ github.actor }}
