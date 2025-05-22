@@ -44,7 +44,7 @@ SEVERITY_THRESHOLD_HIGH="-1"                  # Threshold for HIGH severity find
 SEVERITY_THRESHOLD_MEDIUM="-1"                # Threshold for MEDIUM severity findings
 SEVERITY_THRESHOLD_LOW="-1"                   # Threshold for LOW severity findings
 SEVERITY_THRESHOLD_UNASSIGNED="-1"            # Threshold for UNASSIGNED severity findings
-TEST_TIMEOUT_SEC="300"                        # Timeout in seconds for waiting OWASP DT finished scanning
+ANALYZE_TIMEOUT_SEC="300"                     # Timeout for the analyzing response in seconds
 HTTPS_PROXY=""                                # URL for for HTTP(S) proxy
 ```
 

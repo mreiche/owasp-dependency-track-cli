@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 from time import sleep
 
@@ -11,6 +12,8 @@ __base_dir = Path(__file__).parent
 def setup_module():
     load_env()
 
+__version = f"v{random.randrange(0, 99999)}"
+
 def test_upload():
     parser = create_parser()
     args = parser.parse_args([
@@ -18,9 +21,8 @@ def test_upload():
         "--project-name",
         "test-upload",
         "--auto-create",
-        "--latest",
         "--project-version",
-        "katze",
+        __version,
         str(__base_dir / "test.sbom.xml"),
     ])
 
@@ -39,12 +41,11 @@ def test_analyze():
                 "--project-name",
                 "test-upload",
                 "--project-version",
-                "katze",
-                "--latest",
+                __version,
             ])
             args.func(args)
             break
-        except KeyError as e:
+        except Exception as e:
             exception = e
         sleep(2)
 

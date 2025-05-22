@@ -83,8 +83,11 @@ def print_findings_table(findings: list[Finding]):
             f'{finding["vulnerability"]["vulnId"]} ({shorten(finding["vulnerability"]["description"])})',
             format_severity(finding["vulnerability"]["severity"]),
         ])
-    print("FINDINGS")
-    print(tabulate(data, headers=headers, tablefmt="grid"))
+    if len(data) > 0:
+        print("FINDINGS")
+        print(tabulate(data, headers=headers, tablefmt="grid"))
+    else:
+        print("NO FINDINGS")
 
 def print_violations_table(violations: list[PolicyViolation]):
     headers = [
@@ -101,5 +104,8 @@ def print_violations_table(violations: list[PolicyViolation]):
             violation.policy_condition.policy.name,
             format_violation_state(violation.policy_condition.policy.violation_state.name),
         ])
-    print("POLICY VIOLATIONS")
-    print(tabulate(data, headers=headers, tablefmt="grid"))
+    if len(data) > 0:
+        print("POLICY VIOLATIONS")
+        print(tabulate(data, headers=headers, tablefmt="grid"))
+    else:
+        print("NO POLICY VIOLATIONS")

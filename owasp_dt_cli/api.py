@@ -43,7 +43,7 @@ def find_project_by_name(client: Client, name: str, version: str = None, latest:
             return project.version == version
         stream = stream.filter(_filter_version)
 
-    if latest:
+    if latest is not None:
         def _filter_latest(project: Project):
             return project.is_latest == latest
         stream = stream.filter(_filter_latest)

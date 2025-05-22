@@ -12,6 +12,8 @@ from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse
 from owasp_dt.api.event import is_token_being_processed_1
 from owasp_dt.api.metrics import get_project_current_metrics
 from owasp_dt.api.violation import get_violations_by_project
+from owasp_dt.api.metrics import get_vulnerability_metrics
+from owasp_dt.api.vulnerability import get_all_vulnerabilities
 
 __base_dir = Path(__file__).parent
 
@@ -76,3 +78,15 @@ def test_get_project_metrics(client: owasp_dt.Client):
 def test_get_project_violations(client: owasp_dt.Client):
     resp = get_violations_by_project.sync_detailed(client=client, uuid=__project_id)
     violations = resp.parsed
+
+@pytest.mark.xfail(reason="Metrics data not available for unknown reason")
+def test_get_vulnerability_metrics(client: owasp_dt.Client):
+    resp = get_vulnerability_metrics.sync_detailed(client=client)
+    vulnerabilities = resp.parsed
+    assert len(vulnerabilities) > 0
+
+@pytest.mark.xfail(reason="API client is missing models")
+def test_get_vulnerabilities(client: owasp_dt.Client):
+    resp = get_all_vulnerabilities.sync_detailed(client=client, page_size=1)
+    vulnerabilities = resp.parsed
+    pass

@@ -38,7 +38,7 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
         body.project_version = args.project_version
 
     resp = upload_bom.sync_detailed(client=client, body=body)
-    assert resp.status_code != 404, "Project not found"
+    assert resp.status_code != 404, f"Project not found: {args.project_name}:{args.project_version}"
 
     upload = resp.parsed
     assert isinstance(upload, BomUploadResponse), upload

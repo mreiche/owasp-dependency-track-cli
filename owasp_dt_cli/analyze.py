@@ -8,7 +8,7 @@ from owasp_dt.api.event import is_token_being_processed_1
 from owasp_dt.api.finding import analyze_project
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.models import IsTokenBeingProcessedResponse, PolicyViolation
-
+from owasp_dt.api.metrics import get_vulnerability_metrics
 from owasp_dt_cli import api, config, report
 from owasp_dt_cli.api import create_client_from_env, Finding
 from owasp_dt_cli.log import LOGGER
@@ -17,7 +17,7 @@ from owasp_dt_cli.upload import assert_project_identity
 
 def wait_for_analyzation(client: Client, token: str) -> IsTokenBeingProcessedResponse:
     wait_time = 2
-    test_timeout_sec = int(config.getenv("TEST_TIMEOUT_SEC", "300"))
+    test_timeout_sec = int(config.getenv("ANALYZE_TIMEOUT_SEC", "300"))
     retries = floor(test_timeout_sec / wait_time)
     status = None
     start_date = datetime.now()
@@ -34,15 +34,17 @@ def wait_for_analyzation(client: Client, token: str) -> IsTokenBeingProcessedRes
     return status
 
 def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[PolicyViolation]]:
+    # resp = get_vulnerability_metrics.sync_detailed(client=client)
+    # vulnerabilities = resp.parsed
+    # print(vulnerabilities)
+    # assert len(vulnerabilities) > 0, "No vulnerabilities in database"
+
     findings = api.get_findings_by_project_uuid(client=client, uuid=uuid)
-    if len(findings):
-        report.print_findings_table(findings)
+    report.print_findings_table(findings)
 
     resp = get_violations_by_project.sync_detailed(client=client, uuid=uuid)
     violations = resp.parsed
-    if len(violations):
-        report.print_violations_table(violations)
-
+    report.print_violations_table(violations)
     return findings, violations
 
 def assert_project_uuid(client: Client, args):
@@ -53,11 +55,10 @@ def assert_project_uuid(client: Client, args):
             version=args.project_version,
             latest=args.latest
         )
-        assert opt.present, "Project not found"
+        assert opt.present, f"Project not found: {args.project_name}:{args.project_version}" + (f" (latest)" if args.latest else "")
         args.project_uuid = opt.get().uuid
 
 def handle_analyze(args, client: Client = None):
-
     assert_project_identity(args)
 
     if not client:
