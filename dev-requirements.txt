@@ -1,6 +1,7 @@
 pytest
-dotenv
 pytest-depends
+pytest-cov
+dotenv
 setuptools
 wheel
 twine
