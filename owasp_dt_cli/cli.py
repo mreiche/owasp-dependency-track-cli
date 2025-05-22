@@ -9,3 +9,6 @@ def run():
     except Exception as e:
         LOGGER.error(e)
         exit(1)
+
+if __name__ == "__main__":  # pragma: no cover
+    run()  # pragma: no cover

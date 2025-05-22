@@ -19,7 +19,7 @@ on:
       - test/**
       - Dockerfile
       - requirements.txt
-      - ./.github/**
+      - .github/**
   workflow_dispatch:
 
 permissions:

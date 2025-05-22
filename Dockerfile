@@ -1,8 +1,8 @@
 FROM python:3.13-alpine
 
 WORKDIR /home/
-COPY requirements.txt .
+COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
-COPY . .
+COPY owasp_dt_cli ./owasp_dt_cli
 
-ENTRYPOINT [ "python3",  "main.py" ]
+ENTRYPOINT [ "python3",  "-m", "owasp_dt_cli.cli" ]
