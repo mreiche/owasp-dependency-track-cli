@@ -5,6 +5,7 @@ from time import sleep
 import pytest
 
 from common import load_env
+from owasp_dt_cli.analyze import retry
 from owasp_dt_cli.args import create_parser
 
 __base_dir = Path(__file__).parent
@@ -31,23 +32,14 @@ def test_upload():
 @pytest.mark.depends(on=['test_upload'])
 def test_analyze():
     parser = create_parser()
-    exception = None
+    def _run_analyze():
+        args = parser.parse_args([
+            "analyze",
+            "--project-name",
+            "test-upload",
+            "--project-version",
+            __version,
+        ])
+        args.func(args)
 
-    for i in range(10):
-        try:
-            exception = None
-            args = parser.parse_args([
-                "analyze",
-                "--project-name",
-                "test-upload",
-                "--project-version",
-                __version,
-            ])
-            args.func(args)
-            break
-        except Exception as e:
-            exception = e
-        sleep(2)
-
-    if exception:
-        raise exception
+    retry(_run_analyze, 20)

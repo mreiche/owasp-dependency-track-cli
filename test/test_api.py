@@ -5,15 +5,17 @@ import pytest
 
 import owasp_dt
 from common import load_env
+from owasp_dt_cli.analyze import retry
 from owasp_dt_cli.api import create_client_from_env, get_findings_by_project_uuid
 from owasp_dt.api.bom import upload_bom
 from owasp_dt.api.project import get_projects
-from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse
+from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType
 from owasp_dt.api.event import is_token_being_processed_1
 from owasp_dt.api.metrics import get_project_current_metrics
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.api.metrics import get_vulnerability_metrics
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
+from owasp_dt.api.config_property import update_config_property
 
 __base_dir = Path(__file__).parent
 
@@ -54,7 +56,6 @@ def test_get_scan_status(client: owasp_dt.Client):
 
     assert i < max_tries, f"Scan not finished within {max_tries} seconds"
 
-
 @pytest.mark.depends(on=['test_upload_sbom'])
 def test_search_project_by_name(client: owasp_dt.Client):
     global __project_id
@@ -64,10 +65,16 @@ def test_search_project_by_name(client: owasp_dt.Client):
     assert projects[0].uuid is not None
     __project_id = projects[0].uuid
 
-@pytest.mark.depends(on=['test_search_project_by_name','test_get_scan_status','test_get_vulnerabilities'])
+@pytest.mark.depends(on=[
+    'test_search_project_by_name',
+    'test_get_scan_status',
+    'test_get_vulnerabilities',
+])
 def test_get_project_findings(client: owasp_dt.Client):
     findings = get_findings_by_project_uuid(client=client, uuid=__project_id)
     assert len(findings) > 0
+    for finding in findings:
+        assert finding["component"]["name"]
 
 @pytest.mark.depends(on=['test_search_project_by_name','test_get_scan_status'])
 def test_get_project_metrics(client: owasp_dt.Client):
@@ -85,8 +92,21 @@ def test_get_vulnerability_metrics(client: owasp_dt.Client):
     vulnerabilities = resp.parsed
     assert len(vulnerabilities) > 0
 
-@pytest.mark.xfail(reason="API client is missing models: https://github.com/openapi-generators/openapi-python-client/issues/1256")
+@pytest.mark.depends(on=['test_trigger_vulnerabilities_update'])
 def test_get_vulnerabilities(client: owasp_dt.Client):
-    resp = get_all_vulnerabilities.sync_detailed(client=client, page_size=1)
-    vulnerabilities = resp.parsed
-    pass
+    def _get_vulnerabilities():
+        resp = get_all_vulnerabilities.sync_detailed(client=client, page_size=1)
+        vulnerabilities = resp.parsed
+        assert len(vulnerabilities) > 0
+
+    retry(_get_vulnerabilities, 600)
+
+def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
+    config = ConfigProperty(
+        group_name="task-scheduler",
+        property_name="nist.mirror.cadence",
+        property_value="1",
+        property_type=ConfigPropertyPropertyType.NUMBER,
+    )
+    resp = update_config_property.sync_detailed(client=client, body=config)
+    assert resp.status_code == 200
