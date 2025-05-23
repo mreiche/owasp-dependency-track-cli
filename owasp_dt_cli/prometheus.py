@@ -1,6 +1,4 @@
-from is_empty import not_empty
 from prometheus_client import Gauge, Enum, CollectorRegistry, Summary, PROCESS_COLLECTOR, PLATFORM_COLLECTOR, GC_COLLECTOR
-from tinystream import Stream
 
 from owasp_dt_cli.log import LOGGER
 
@@ -18,9 +16,6 @@ class PrometheusAdapter:
             registry.unregister(GC_COLLECTOR)
         except Exception as e:
             LOGGER.error(f"Failed unregistering python metrics: {e}")
-
-    def parse_list(self, input_str: str):
-        return Stream(input_str.split(",")).map(str.strip).filter(not_empty).collect()
 
     def prefix_metric_key(self, metric_key: str):
         return f"{self.__prefix}{metric_key}"
