@@ -44,6 +44,9 @@ SEVERITY_THRESHOLD_HIGH="-1"                  # Threshold for HIGH severity find
 SEVERITY_THRESHOLD_MEDIUM="-1"                # Threshold for MEDIUM severity findings
 SEVERITY_THRESHOLD_LOW="-1"                   # Threshold for LOW severity findings
 SEVERITY_THRESHOLD_UNASSIGNED="-1"            # Threshold for UNASSIGNED severity findings
+VIOLATION_THRESHOLD_FAIL="-1"                 # Threshold for FAIL policy violations
+VIOLATION_THRESHOLD_WARN="-1"                 # Threshold for WARN policy violations
+VIOLATION_THRESHOLD_INFO="-1"                 # Threshold for INFO policy violations
 ANALYZE_TIMEOUT_SEC="300"                     # Timeout for the analyzing response in seconds
 HTTPS_PROXY=""                                # URL for for HTTP(S) proxy
 ```

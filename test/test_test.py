@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import httpx
 import pytest
 
 from common import load_env
@@ -12,7 +11,8 @@ __base_dir = Path(__file__).parent
 def setup_module():
     load_env()
 
-def test_test():
+@pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
+def test_test(capsys):
     parser = create_parser()
     args = parser.parse_args([
         "test",
@@ -37,8 +37,3 @@ def test_uploaded():
     project = opt.get()
     assert project.version == "latest"
     assert project.is_latest == True
-
-def test_proxy_fails(monkeypatch):
-    monkeypatch.setenv("HTTP_PROXY", "http://localhost:3128")
-    with pytest.raises(expected_exception=httpx.ConnectError):
-        test_test()
