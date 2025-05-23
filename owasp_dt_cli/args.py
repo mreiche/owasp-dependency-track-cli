@@ -36,7 +36,7 @@ def create_parser():
     # add_sbom_file(parser_convert)
     # parser_convert.set_defaults(func=handle_convert)
 
-    test = subparsers.add_parser("test", help="Uploads and analyzes a SBOM. Requires permission: BOM_UPLOAD")
+    test = subparsers.add_parser("test", help="Uploads and analyzes a SBOM.")
     add_sbom_file(test)
     add_upload_params(test)
     test.set_defaults(func=handle_test)

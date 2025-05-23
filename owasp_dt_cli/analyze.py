@@ -1,3 +1,5 @@
+import os
+
 from is_empty import empty
 from owasp_dt import Client
 from owasp_dt.api.finding import analyze_project
@@ -36,7 +38,7 @@ def assert_project_uuid(client: Client, args):
         return opt.get()
 
     if empty(args.project_uuid):
-        project = retry(_find_project, 20)
+        project = retry(_find_project, int(os.getenv("PROJECT_TIMEOUT_SEC", "20")))
         args.project_uuid = project.uuid
 
 
