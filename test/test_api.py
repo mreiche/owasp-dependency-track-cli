@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from time import sleep
 
@@ -14,12 +15,12 @@ from owasp_dt.api.metrics import get_vulnerability_metrics
 from owasp_dt.api.policy import create_policy, delete_policy
 from owasp_dt.api.policy_condition import create_policy_condition
 from owasp_dt.api.project import get_projects
-from owasp_dt.api.violation import get_violations_by_project
+from owasp_dt.api.violation import get_violations_by_project, get_violations
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
 from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType, Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, PolicyConditionOperator, License
 from owasp_dt.types import UNSET
 
-from common import load_env
+#from common import load_env
 from owasp_dt_cli.analyze import retry
 from owasp_dt_cli.api import create_client_from_env, get_findings_by_project_uuid
 
@@ -27,19 +28,9 @@ __base_dir = Path(__file__).parent
 __upload_token: str | None = None
 __project_uuid: str | None = None
 __mit_license_uuid: str | None = None
-__policy_uuid: str | None = None
 
-
-def setup_module():
-    load_env()
-
-
-def teardown_module():
-    if not empty(__policy_uuid):
-        client = create_client_from_env()
-        resp = delete_policy.sync_detailed(client=client, uuid=__policy_uuid)
-        assert resp.status_code in [204, 404]
-
+# def setup_module():
+#     load_env()
 
 @pytest.fixture
 def client():
@@ -149,7 +140,6 @@ def test_get_mit_license_uuid(client: owasp_dt.Client):
 
 
 def test_create_test_policy(client: owasp_dt.Client):
-    global __policy_uuid
 
     policy = Policy(
         uuid="",
@@ -160,7 +150,6 @@ def test_create_test_policy(client: owasp_dt.Client):
     assert resp.status_code == 201
     policy = resp.parsed
     assert isinstance(policy, Policy)
-    __policy_uuid = str(policy.uuid)
 
     license_uuid = test_get_mit_license_uuid(client)
 
@@ -174,6 +163,14 @@ def test_create_test_policy(client: owasp_dt.Client):
     resp = create_policy_condition.sync_detailed(client=client, uuid=policy.uuid, body=condition)
     assert resp.status_code == 201
 
+@pytest.mark.depends(on=['test_create_test_policy', 'test_upload_sbom'])
+def test_get_violations(client: owasp_dt.Client):
+    def _get_violations():
+        resp = get_violations.sync_detailed(client=client, page_size=1)
+        violations = resp.parsed
+        assert len(violations) > 0
+
+    retry(_get_violations, 600)
 
 def test_proxy_fails(monkeypatch, client: owasp_dt.Client):
     monkeypatch.setenv("HTTP_PROXY", "http://localhost:3128")
