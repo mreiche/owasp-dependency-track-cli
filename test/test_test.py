@@ -2,14 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from common import load_env
 from owasp_dt_cli import api
 from owasp_dt_cli.args import create_parser
 
 __base_dir = Path(__file__).parent
-
-def setup_module():
-    load_env()
 
 @pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
 def test_test(capsys):
@@ -29,6 +25,9 @@ def test_test(capsys):
     assert args.project_version == "latest"
 
     args.func(args)
+    captured = capsys.readouterr()
+    assert "CVE-2018-20225" in captured.out
+    assert "Forbid MIT license" in captured.out
 
 @pytest.mark.depends(on=['test_test'])
 def test_uploaded():

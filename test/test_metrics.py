@@ -1,14 +1,6 @@
-from pathlib import Path
-
 import pytest
 
-from common import load_env
 from owasp_dt_cli.args import create_parser
-
-__base_dir = Path(__file__).parent
-
-def setup_module():
-    load_env()
 
 
 @pytest.mark.depends(on=["test/test_test.py::test_test"])
