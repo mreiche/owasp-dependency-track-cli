@@ -6,6 +6,12 @@
 
 A CLI for CI/CD usage.
 
+## Installation
+
+```shell
+pip install owasp-dependency-track-cli
+```
+
 ## Usage
 
 ```shell
@@ -14,7 +20,6 @@ export OWASP_DTRACK_VERIFY_SSL="False"
 export OWASP_DTRACK_API_KEY="xyz"
 export SEVERITY_THRESHOLD_HIGH="3"
 
-pip install owasp-dependency-track-cli
 owasp-dtrack-cli test --project-name webapp --auto-create test/test.sbom.xml
 ```
 
@@ -29,11 +34,12 @@ podman|docker \
  ghcr.io/mreiche/owasp-dependency-track-cli:latest test --project-name webapp2 --auto-create "$(pwd)/test/test.sbom.xml"
 ```
 
-## Features
+## Commands
 
 - `upload`: Uploads a SBOM only
 - `analyze`: Analyzes a project by creating a report
 - `test`: Uploads and analyzes a SBOM
+- `metrics prometheus`: Provides Prometheus metrics as `owasp_dtrack_cvss_score` and `owasp_dtrack_violations` Gauge series
 
 ## Environment variables
 ```shell
@@ -47,8 +53,9 @@ SEVERITY_THRESHOLD_UNASSIGNED="-1"            # Threshold for UNASSIGNED severit
 VIOLATION_THRESHOLD_FAIL="-1"                 # Threshold for FAIL policy violations
 VIOLATION_THRESHOLD_WARN="-1"                 # Threshold for WARN policy violations
 VIOLATION_THRESHOLD_INFO="-1"                 # Threshold for INFO policy violations
-ANALYZE_TIMEOUT_SEC="300"                     # Timeout for the analyzing response in seconds
-HTTPS_PROXY=""                                # URL for for HTTP(S) proxy
+ANALYZE_TIMEOUT_SEC="300"                     # Timeout for analyzation in seconds
+PROJECT_TIMEOUT_SEC="20"                      # Timeout for searching the project by name in seconds
+HTTPS_PROXY=""                                # URL for HTTP(S) proxy
 ```
 
 ## API-Key
