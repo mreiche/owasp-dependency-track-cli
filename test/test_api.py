@@ -109,7 +109,7 @@ def test_get_project_violations(client: owasp_dt.Client):
     violations = resp.parsed
 
 
-@pytest.mark.xfail(reason="Metrics data not available for unknown reason")
+@pytest.mark.xfail(reason="Metrics not available on fresh installations")
 def test_get_vulnerability_metrics(client: owasp_dt.Client):
     resp = get_vulnerability_metrics.sync_detailed(client=client)
     vulnerabilities = resp.parsed

@@ -1,6 +1,5 @@
 import random
 from pathlib import Path
-from time import sleep
 
 import pytest
 

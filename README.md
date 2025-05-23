@@ -34,6 +34,7 @@ podman|docker \
 - `upload`: Uploads a SBOM only
 - `analyze`: Analyzes a project by creating a report
 - `test`: Uploads and analyzes a SBOM
+- `metrics`: Provides (Prometheus) metrics
 
 ## Environment variables
 ```shell
