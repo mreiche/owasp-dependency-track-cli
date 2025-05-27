@@ -3,8 +3,8 @@ from owasp_dt_cli.log import LOGGER
 
 def run():
     parser = create_parser()
-    args = parser.parse_args()
     try:
+        args = parser.parse_args()
         args.func(args)
     except Exception as e:
         LOGGER.error(e)
