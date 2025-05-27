@@ -130,8 +130,6 @@ def test_get_mit_license_uuid(client: owasp_dt.Client):
         license = resp.parsed
         assert isinstance(license, License)
         __mit_license_uuid = str(license.uuid)
-    return __mit_license_uuid
-
 
 def test_create_test_policy(client: owasp_dt.Client):
 
