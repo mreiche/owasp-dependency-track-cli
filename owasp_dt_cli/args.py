@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
 from owasp_dt_cli.models import format_day
+from owasp_dt_cli.project import handle_project_upsert
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
 from datetime import datetime
@@ -58,5 +59,13 @@ def create_parser():
     prometheus.add_argument("--scrape-interval", help="Metrics scrape interval in seconds", type=int, default=3600)
     prometheus.add_argument("--initial-start-date", help="Date for the very first metrics query (YYYY-MM-DD)", default=format_day(datetime.now()))
     metrics.set_defaults(func=handle_prometheus_metrics)
+
+    project = subparsers.add_parser("project", help="Manipulate project data")
+    project_sub_parsers = project.add_subparsers(dest="type", required=True)
+    upsert = project_sub_parsers.add_parser("upsert", help="Creates or patches project by a given JSON file")
+    upsert.add_argument("--file", help="Project JSON file", type=str, required=False)
+    upsert.add_argument("--json", help="Project JSON data as string", required=False)
+    add_project_identity_params(upsert)
+    upsert.set_defaults(func=handle_project_upsert)
 
     return parser

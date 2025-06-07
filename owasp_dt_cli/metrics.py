@@ -1,15 +1,15 @@
+from datetime import datetime, timedelta
+
 import owasp_dt
+import prometheus_client as prometheus
 from owasp_dt.api.finding import get_all_findings_1
 from owasp_dt.models import PolicyViolation, Finding
-#from prometheus_client import REGISTRY, Gauge, generate_latest
-import prometheus_client as prometheus
 
 from owasp_dt_cli import api
 from owasp_dt_cli.common import schedule
 from owasp_dt_cli.log import LOGGER
 from owasp_dt_cli.models import format_day, day_format
 from owasp_dt_cli.prometheus import PrometheusAdapter
-from datetime import datetime, timedelta
 
 
 def handle_prometheus_metrics(args):
