@@ -62,7 +62,7 @@ def create_parser():
 
     project = subparsers.add_parser("project", help="Manipulate project data")
     project_sub_parsers = project.add_subparsers(dest="type", required=True)
-    upsert = project_sub_parsers.add_parser("upsert", help="Creates or patches project by a given JSON file")
+    upsert = project_sub_parsers.add_parser("upsert", help="Creates or patches a project by JSON data and prints the UUID to stdout")
     upsert.add_argument("--file", help="Project JSON file", type=str, required=False)
     upsert.add_argument("--json", help="Project JSON data as string", required=False)
     add_project_identity_params(upsert)

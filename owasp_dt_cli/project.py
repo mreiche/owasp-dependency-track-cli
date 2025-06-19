@@ -1,24 +1,15 @@
 import json
 from pathlib import Path
-from uuid import UUID
 
 from owasp_dt.api.project import create_project
 from owasp_dt.api.project import patch_project
 from is_empty import empty, not_empty
 from owasp_dt.models import Project
+from owasp_dt.types import Unset
 from tinystream import Opt
 
+from owasp_dt_cli import api
 from owasp_dt_cli.api import create_client_from_env
-
-def project_from_dict(project_data: dict):
-    project_data["uuid"] = '12345678123456781234567812345678'
-    project_data["lastBomImport"] = 0
-    project = Project.from_dict(project_data)
-    project.uuid = ""
-    project.last_bom_import = 0
-    #del project["uuid"]
-    #del project.last_bom_import
-    return project
 
 def handle_project_upsert(args):
     file_defined = not empty(args.file)
@@ -37,34 +28,38 @@ def handle_project_upsert(args):
         except Exception as e:
             raise Exception(f"Error parsing JSON '{args.json}': {e}")
 
+    client = create_client_from_env()
+    opt_uuid = Opt(project_data).kmap("uuid").if_absent(args.project_uuid).filter(not_empty)
+    project = Project.from_dict(project_data)
+
+    if not empty(args.project_uuid):
+        project.uuid = args.project_uuid
+
     if not empty(args.project_name):
-        project_data["name"] = args.project_name
+        project.name = args.project_name
 
     if not empty(args.project_version):
-        project_data["version"] = args.project_version
+        project.version = args.project_version
 
-    if not empty(args.latest):
-        project_data["is_latest"] = args.latest
+    if not args.latest:
+        project.is_latest = args.latest
 
-    client = create_client_from_env()
-    project_uuid = Opt(project_data).kmap("uuid").if_absent(args.project_uuid).filter(not_empty)
-    project = project_from_dict(project_data)
-    project_dict = project.to_dict()
-    print(project_dict)
-    #project_data["uuid"] = '12345678123456781234567812345678'
-    #project_data["lastBomImport"] = 0
-    #project = Project.from_dict(project_data)
-    #project.uuid = None
-    #project.last_bom_import = None
-    #print(project)
-    #project = Project(**project_data)
-    #print(project)
-    #print(project_uuid.present)
-    if project_uuid.present:
-        resp = patch_project.sync_detailed(client=client, uuid=project_uuid.get(), body=project)
+    if opt_uuid.present:
+        project_uuid = opt_uuid.get()
+        resp = patch_project.sync_detailed(client=client, uuid=project_uuid, body=project)
+        assert resp.status_code in [304, 200, 201]
+        print(project_uuid)
     else:
+        assert not isinstance(project.name, Unset) and not empty(project.name), "At least a project name is required"
         resp = create_project.sync_detailed(client=client, body=project)
-        print(resp.content)
-
-    #print(project_data)
-    pass
+        if resp.status_code == 409:
+            found = api.find_project_by_name(client=client, name=project.name, version=project.version, latest=project.is_latest)
+            assert found.present, "The backend complains about project naming conflict, but the project does not exists, this should not happen"
+            existing_project = found.get()
+            resp = patch_project.sync_detailed(client=client, uuid=existing_project.uuid, body=project)
+            assert resp.status_code in [304, 200, 201]
+            print(existing_project.uuid)
+        else:
+            assert resp.status_code == 201, resp.content
+            created_project = resp.parsed
+            print(created_project.uuid)

@@ -1,7 +1,3 @@
 {
-  "tags": [
-    {"name":  "katze"},
-    {"name":  "affe"},
-    {"name":  "kuh"}
-  ]
+  "name": "Upsert project"
 }
