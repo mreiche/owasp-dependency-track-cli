@@ -52,7 +52,7 @@ jobs:
         env:
           PYTHONPATH: "."
         run: |
-          pytest --junitxml=./test-results/tests.xml --cov=./owasp_dt_cli --reruns 5 --reruns-delay 10 ./test
+          pytest --junitxml=./test-results/tests.xml --cov=./owasp_dt_cli ./test
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
