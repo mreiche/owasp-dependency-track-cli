@@ -19,7 +19,7 @@ def test_upload():
         "--auto-create",
         "--project-version",
         __version,
-        str(__base_dir / "test.sbom.xml"),
+        str(__base_dir / "files/test.sbom.xml"),
     ])
 
     args.func(args)
