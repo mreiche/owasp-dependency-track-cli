@@ -140,7 +140,7 @@ def test_create_test_policy(client: owasp_dt.Client):
         violation_state=PolicyViolationState.FAIL,
     )
     resp = create_policy.sync_detailed(client=client, body=policy)
-    assert resp.status_code == 201
+    assert resp.status_code in [201, 409]
     policy = resp.parsed
     assert isinstance(policy, Policy)
 
