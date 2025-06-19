@@ -40,6 +40,7 @@ podman|docker \
 - `analyze`: Analyzes a project by creating a report
 - `test`: Uploads and analyzes a SBOM
 - `metrics prometheus`: Provides Prometheus metrics as `owasp_dtrack_cvss_score` and `owasp_dtrack_violations` Gauge series
+- `project upsert`: Upserts a project by file or JSON string like `project upsert --json '{ "name": "My project" }'`
 
 ## Environment variables
 ```shell

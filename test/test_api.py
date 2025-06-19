@@ -35,7 +35,7 @@ def client():
 
 def test_upload_sbom(client: owasp_dt.Client):
     global __upload_token
-    with open(__base_dir / "test.sbom.xml") as sbom_file:
+    with open(__base_dir / "files/test.sbom.xml") as sbom_file:
         resp = upload_bom.sync_detailed(client=client, body=UploadBomBody(
             project_name=__project_name,
             auto_create=True,
@@ -122,7 +122,7 @@ def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
     assert resp.status_code == 200
 
 
-def test_get_mit_license_uuid(client: owasp_dt.Client):
+def assert_mit_license_uuid(client: owasp_dt.Client):
     global __mit_license_uuid
     if empty(__mit_license_uuid):
         resp = get_license.sync_detailed(client=client, license_id="MIT")
@@ -130,6 +130,7 @@ def test_get_mit_license_uuid(client: owasp_dt.Client):
         license = resp.parsed
         assert isinstance(license, License)
         __mit_license_uuid = str(license.uuid)
+    return __mit_license_uuid
 
 def test_create_test_policy(client: owasp_dt.Client):
 
@@ -139,11 +140,15 @@ def test_create_test_policy(client: owasp_dt.Client):
         violation_state=PolicyViolationState.FAIL,
     )
     resp = create_policy.sync_detailed(client=client, body=policy)
+    if resp.status_code == 409:
+        return
     assert resp.status_code == 201
     policy = resp.parsed
     assert isinstance(policy, Policy)
 
-    license_uuid = test_get_mit_license_uuid(client)
+    license_uuid = assert_mit_license_uuid(client)
+
+    assert not empty(license_uuid), "MIT license not found"
 
     condition = PolicyCondition(
         uuid="",

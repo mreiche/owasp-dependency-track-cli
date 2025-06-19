@@ -18,7 +18,7 @@ def test_test(capsys):
         "--latest",
         "--project-version",
         "latest",
-        str(__base_dir / "test.sbom.xml"),
+        str(__base_dir / "files/test.sbom.xml"),
     ])
 
     assert args.latest == True
