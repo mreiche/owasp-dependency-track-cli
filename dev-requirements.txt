@@ -5,3 +5,4 @@ dotenv
 setuptools
 wheel
 twine
+pytest-rerunfailures
