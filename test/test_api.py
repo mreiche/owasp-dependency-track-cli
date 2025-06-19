@@ -122,7 +122,7 @@ def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
     assert resp.status_code == 200
 
 
-def test_get_mit_license_uuid(client: owasp_dt.Client):
+def assert_mit_license_uuid(client: owasp_dt.Client):
     global __mit_license_uuid
     if empty(__mit_license_uuid):
         resp = get_license.sync_detailed(client=client, license_id="MIT")
@@ -144,7 +144,7 @@ def test_create_test_policy(client: owasp_dt.Client):
     policy = resp.parsed
     assert isinstance(policy, Policy)
 
-    license_uuid = test_get_mit_license_uuid(client)
+    license_uuid = assert_mit_license_uuid(client)
 
     assert not empty(license_uuid), "MIT license not found"
 
