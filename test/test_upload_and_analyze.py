@@ -9,8 +9,8 @@ __base_dir = Path(__file__).parent
 
 __version = f"v{random.randrange(0, 99999)}"
 
-
-def test_upload():
+@pytest.mark.parametrize("version", [ __version ])
+def test_upload(version: str):
     parser = create_parser()
     args = parser.parse_args([
         "upload",
@@ -18,21 +18,21 @@ def test_upload():
         "test-upload",
         "--auto-create",
         "--project-version",
-        __version,
+        version,
         str(__base_dir / "files/test.sbom.xml"),
     ])
 
     args.func(args)
 
-
 @pytest.mark.depends(on=['test_upload'])
-def test_analyze():
+@pytest.mark.parametrize("version", [ __version ])
+def test_analyze(version: str):
     parser = create_parser()
     args = parser.parse_args([
         "analyze",
         "--project-name",
         "test-upload",
         "--project-version",
-        __version,
+        version,
     ])
     args.func(args)
