@@ -1,8 +1,7 @@
 import json
 from pathlib import Path
 
-from owasp_dt.api.project import create_project
-from owasp_dt.api.project import patch_project
+from owasp_dt.api.project import create_project, get_projects, patch_project, delete_projects
 from is_empty import empty, not_empty
 from owasp_dt.models import Project
 from owasp_dt.types import Unset
@@ -63,3 +62,21 @@ def handle_project_upsert(args):
             assert resp.status_code == 201, resp.content
             created_project = resp.parsed
             print(created_project.uuid)
+
+
+def handle_project_cleanup(args):
+    client = create_client_from_env()
+    def _loader(page_number: int):
+        return get_projects.sync_detailed(
+            client=client,
+            page_number=page_number,
+            page_size=1000
+        )
+    project_uuids_to_delete = []
+    for projects in api.page_result(_loader):
+        for project in projects:
+            if project.active is False:
+                project_uuids_to_delete.append(project.uuid)
+
+    if len(project_uuids_to_delete) > 0:
+        delete_projects.sync_detailed(client=client, body=project_uuids_to_delete)

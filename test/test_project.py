@@ -67,3 +67,11 @@ def test_patch_project_from_string(parser, capsys, client):
     project = resp.parsed
     opt_tag = Opt(project).map_key("tags").stream().filter_key_value("name", test_tag_name.lower()).next()
     assert opt_tag.present
+
+def test_cleanup_projects(parser, client):
+    args = parser.parse_args([
+        "project",
+        "cleanup"
+    ])
+
+    args.func(args)
