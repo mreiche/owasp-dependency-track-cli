@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import owasp_dt
 import prometheus_client as prometheus
 from owasp_dt.api.finding import get_all_findings_1
+from owasp_dt.api.violation import get_violations
 from owasp_dt.models import PolicyViolation, Finding
 
 from owasp_dt_cli import api
@@ -115,7 +116,15 @@ def update_violation_metrics(
             ]).set(1)
 
     try:
-        for violations in api.get_all_violations(client=client, since=since):
+        def _loader(page_number: int):
+            return get_violations.sync_detailed(
+                client=client,
+                show_inactive=False,
+                page_number=page_number,
+                page_size=1000,
+                occurred_on_date_from=format_day(since),
+            )
+        for violations in api.page_result(_loader):
             _add_violations(violations)
     except Exception as e:
         LOGGER.error(e)

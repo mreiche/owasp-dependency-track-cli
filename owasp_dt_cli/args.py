@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
 from owasp_dt_cli.models import format_day
-from owasp_dt_cli.project import handle_project_upsert
+from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
 from datetime import datetime
@@ -18,6 +18,7 @@ def add_upload_params(parser: ArgumentParser):
     parser.add_argument("--auto-create", help="Requires permission: PROJECT_CREATION_UPLOAD", action='store_true', default=False)
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
+    parser.add_argument("--keep-previous", help="Keep previous project versions enabled", action='store_true', default=False)
 
 def add_project_identity_params(parser: ArgumentParser):
     parser.add_argument("--project-uuid", help="Project UUID", required=False)
@@ -67,5 +68,9 @@ def create_parser():
     upsert.add_argument("--json", help="Project JSON data as string", required=False)
     add_project_identity_params(upsert)
     upsert.set_defaults(func=handle_project_upsert)
+
+    cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects")
+    add_project_identity_params(cleanup)
+    cleanup.set_defaults(func=handle_project_cleanup)
 
     return parser
