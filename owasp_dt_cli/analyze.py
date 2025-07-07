@@ -5,7 +5,7 @@ from owasp_dt import Client
 from owasp_dt.api.finding import analyze_project
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
-from owasp_dt.models import PolicyViolation
+from owasp_dt.models import PolicyViolation, BomUploadResponse
 
 from owasp_dt_cli import api, report
 from owasp_dt_cli.api import create_client_from_env, Finding
@@ -49,5 +49,10 @@ def handle_analyze(args):
 
     assert_project_uuid(client=client, args=args)
     resp = analyze_project.sync_detailed(client=client, uuid=args.project_uuid)
-    wait_for_analyzation(client=client, token=resp.parsed.token)
+    assert resp.status_code in [200, 202]
+
+    bom_upload = resp.parsed
+    assert isinstance(bom_upload, BomUploadResponse), f"Invalid response: {bom_upload}"
+
+    wait_for_analyzation(client=client, token=bom_upload.token)
     report_project(client=client, uuid=args.project_uuid)
