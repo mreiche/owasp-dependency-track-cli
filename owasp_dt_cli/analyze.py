@@ -49,10 +49,10 @@ def handle_analyze(args):
 
     assert_project_uuid(client=client, args=args)
     resp = analyze_project.sync_detailed(client=client, uuid=args.project_uuid)
-    assert resp.status_code in [200, 202]
+    assert resp.status_code in [200, 202], f"Project analyzation status unknown: {resp.parsed}"
 
     bom_upload = resp.parsed
-    assert isinstance(bom_upload, BomUploadResponse), f"Invalid response: {bom_upload}"
+    assert isinstance(bom_upload, BomUploadResponse), f"Unexpected response: {bom_upload}"
 
     wait_for_analyzation(client=client, token=bom_upload.token)
     report_project(client=client, uuid=args.project_uuid)
