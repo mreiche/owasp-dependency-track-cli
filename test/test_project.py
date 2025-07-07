@@ -66,10 +66,12 @@ def test_patch_project_from_string(parser, capsys, client):
     assert opt_tag.present
 
 @pytest.mark.depends(on=["test_patch_project_from_string"])
-def test_cleanup_inactive_project(parser, client):
+def test_cleanup_inactive_project_versions(parser, client):
     args = parser.parse_args([
         "project",
-        "cleanup"
+        "cleanup",
+        "--project-name",
+        "upsert-project", # must match name from project.json
     ])
 
     args.func(args)

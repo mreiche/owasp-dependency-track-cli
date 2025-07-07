@@ -14,15 +14,24 @@ def add_sbom_file(parser: ArgumentParser, default="sbom.json"):
     parser.add_argument("sbom", help="SBOM file path", type=pathlib.Path, default=default)
 
 def add_upload_params(parser: ArgumentParser):
-    add_project_identity_params(parser)
+    add_project_params(parser)
     parser.add_argument("--auto-create", help="Requires permission: PROJECT_CREATION_UPLOAD", action='store_true', default=False)
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
     parser.add_argument("--keep-previous", help="Keep previous project versions enabled", action='store_true', default=False)
 
+def add_project_params(parser: ArgumentParser):
+    add_project_name_params(parser)
+    add_project_identity_params(parser)
+    add_project_version_params(parser)
+
+def add_project_name_params(parser: ArgumentParser):
+    parser.add_argument("--project-name", help="Project name", required=False)
+
 def add_project_identity_params(parser: ArgumentParser):
     parser.add_argument("--project-uuid", help="Project UUID", required=False)
-    parser.add_argument("--project-name", help="Project name", required=False)
+
+def add_project_version_params(parser: ArgumentParser):
     parser.add_argument("--project-version", help="Project version", default="latest")
     parser.add_argument("--latest", help="Project version is latest", action='store_true', default=False)
 
@@ -49,7 +58,7 @@ def create_parser():
     upload.set_defaults(func=handle_upload)
 
     analyze = subparsers.add_parser("analyze", help="Analyzes a projects and creates a findings report. Requires permission: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY")
-    add_project_identity_params(analyze)
+    add_project_params(analyze)
     analyze.set_defaults(func=handle_analyze)
 
     metrics = subparsers.add_parser("metrics", help="Provides metrics. Requires permissions: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY")
@@ -66,11 +75,11 @@ def create_parser():
     upsert = project_sub_parsers.add_parser("upsert", help="Creates or patches a project by JSON data and prints the UUID to stdout")
     upsert.add_argument("--file", help="Project JSON file", type=str, required=False)
     upsert.add_argument("--json", help="Project JSON data as string", required=False)
-    add_project_identity_params(upsert)
+    add_project_params(upsert)
     upsert.set_defaults(func=handle_project_upsert)
 
     cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects")
-    add_project_identity_params(cleanup)
+    add_project_name_params(cleanup)
     cleanup.set_defaults(func=handle_project_cleanup)
 
     return parser
