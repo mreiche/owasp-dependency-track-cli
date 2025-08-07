@@ -54,6 +54,7 @@ def test_patch_project_from_string(parser, capsys, client):
         "upsert",
         "--project-uuid",
         __project_uuid,
+        "--latest",
         "--json",
         json.dumps(project_patch)
     ])
@@ -65,6 +66,7 @@ def test_patch_project_from_string(parser, capsys, client):
 
     resp = get_project.sync_detailed(project_uuid, client=client)
     project = resp.parsed
+    assert project.is_latest == True
     opt_tag = Opt(project).map_key("tags").stream().filter_key_value("name", test_tag_name.lower()).next()
     assert opt_tag.present
 

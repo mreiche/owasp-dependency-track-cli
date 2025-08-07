@@ -48,7 +48,7 @@ def create_parser():
     add_upload_params(upload)
     upload.set_defaults(func=handle_upload)
 
-    analyze = subparsers.add_parser("analyze", help="Analyzes a projects and creates a findings report. Requires permission: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY")
+    analyze = subparsers.add_parser("analyze", help="Analyzes a projects and creates a findings report. Requires permissions: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY")
     add_project_identity_params(analyze)
     analyze.set_defaults(func=handle_analyze)
 
@@ -61,7 +61,7 @@ def create_parser():
     prometheus.add_argument("--initial-start-date", help="Date for the very first metrics query (YYYY-MM-DD)", default=format_day(datetime.now()))
     metrics.set_defaults(func=handle_prometheus_metrics)
 
-    project = subparsers.add_parser("project", help="Manipulate project data")
+    project = subparsers.add_parser("project", help="Manipulate project data. Requires permission: PORTFOLIO_MANAGEMENT")
     project_sub_parsers = project.add_subparsers(dest="type", required=True)
     upsert = project_sub_parsers.add_parser("upsert", help="Creates or patches a project by JSON data and prints the UUID to stdout")
     upsert.add_argument("--file", help="Project JSON file", type=str, required=False)
@@ -69,7 +69,7 @@ def create_parser():
     add_project_identity_params(upsert)
     upsert.set_defaults(func=handle_project_upsert)
 
-    cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects")
+    cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
     add_project_identity_params(cleanup)
     cleanup.set_defaults(func=handle_project_cleanup)
 
