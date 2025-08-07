@@ -78,3 +78,29 @@ def test_cleanup_inactive_project_versions(parser, client):
 
     resp = get_project.sync_detailed(__project_uuid, client=client)
     assert resp.status_code == 404
+
+def test_upsert_invalid_json_file(parser, capsys):
+    args = parser.parse_args([
+        "project",
+        "upsert",
+        "--project-name",
+        "invalid-file",
+        "--file",
+        str(__base_dir / "test.env")
+    ])
+
+    with pytest.raises(expected_exception=Exception, match="Error loading JSON file"):
+        args.func(args)
+
+def test_upsert_invalid_json_string(parser, capsys):
+    args = parser.parse_args([
+        "project",
+        "upsert",
+        "--project-name",
+        "invalid-json",
+        "--json",
+        "invalid-json"
+    ])
+
+    with pytest.raises(expected_exception=Exception, match="Error parsing JSON"):
+        args.func(args)
