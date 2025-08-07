@@ -69,6 +69,7 @@ def handle_project_cleanup(args):
     def _loader(page_number: int):
         return get_projects.sync_detailed(
             client=client,
+            name=None if empty(args.project_name) else args.project_name,
             page_number=page_number,
             page_size=1000
         )

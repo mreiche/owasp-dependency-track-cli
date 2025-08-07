@@ -1,15 +1,15 @@
 from pathlib import Path
 
 import pytest
+from owasp_dt import Client
 
 from owasp_dt_cli import api
-from owasp_dt_cli.args import create_parser
 from owasp_dt_cli.common import retry
+from test.common import client, parser
 
 __base_dir = Path(__file__).parent
 
-def assert_test(capsys):
-    parser = create_parser()
+def assert_test(capsys, parser):
     args = parser.parse_args([
         "test",
         "--project-name",
@@ -30,12 +30,11 @@ def assert_test(capsys):
     assert "Forbid MIT license" in captured.out
 
 @pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
-def test_test(capsys):
-    retry(lambda: assert_test(capsys), 60, 10)
+def test_test(capsys, parser):
+    retry(lambda: assert_test(capsys, parser), 60, 10)
 
 @pytest.mark.depends(on=['test_test'])
-def test_uploaded():
-    client = api.create_client_from_env()
+def test_uploaded(client: Client):
     opt = api.find_project_by_name(client=client, name="test-project")
     project = opt.get()
     assert project.version == "latest"

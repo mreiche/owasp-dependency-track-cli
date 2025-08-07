@@ -1,11 +1,10 @@
 import pytest
 
-from owasp_dt_cli.args import create_parser
+from test.common import parser
 
 
 @pytest.mark.depends(on=["test/test_test.py::test_test"])
-def test_prometheus(capsys):
-    parser = create_parser()
+def test_prometheus(capsys, parser):
     args = parser.parse_args([
         "metrics",
         "prometheus",
