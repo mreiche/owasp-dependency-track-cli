@@ -4,11 +4,10 @@ from argparse import ArgumentParser
 
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
-from owasp_dt_cli.models import format_day
 from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
-from datetime import datetime
+
 
 def add_sbom_file(parser: ArgumentParser, default="sbom.json"):
     parser.add_argument("sbom", help="SBOM file path", type=pathlib.Path, default=default)
@@ -40,12 +39,7 @@ def create_parser():
         description="OWASP Dependency Track CLI",
         exit_on_error=False
     )
-    #parser.add_argument("--sbom", help="SBOM file path", default="katze")
     subparsers = parser.add_subparsers(dest="command", required=True)
-
-    # parser_convert = subparsers.add_parser("convert", help="Converting SBOM to XML/JSON")
-    # add_sbom_file(parser_convert)
-    # parser_convert.set_defaults(func=handle_convert)
 
     test = subparsers.add_parser("test", help="Uploads and analyzes a SBOM.")
     add_sbom_file(test)
@@ -67,7 +61,6 @@ def create_parser():
     prometheus.add_argument("--serve", help="Setup a HTTP server", action='store_true', default=False)
     prometheus.add_argument("--serve-port", help="Metrics HTTP server port", type=int, default=8198)
     prometheus.add_argument("--scrape-interval", help="Metrics scrape interval in seconds", type=int, default=3600)
-    prometheus.add_argument("--initial-start-date", help="Date for the very first metrics query (YYYY-MM-DD)", default=format_day(datetime.now()))
     metrics.set_defaults(func=handle_prometheus_metrics)
 
     project = subparsers.add_parser("project", help="Manipulate project data. Requires permission: PORTFOLIO_MANAGEMENT")

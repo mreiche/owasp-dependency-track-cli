@@ -9,7 +9,6 @@ from owasp_dt.models import PolicyViolation, Finding
 from owasp_dt_cli import api
 from owasp_dt_cli.common import schedule
 from owasp_dt_cli.log import LOGGER
-from owasp_dt_cli.models import format_day, day_format
 from owasp_dt_cli.prometheus import PrometheusAdapter
 
 
@@ -21,17 +20,13 @@ def handle_prometheus_metrics(args):
     cvss_score = prometheus.Gauge(adapter.prefix_metric_key("cvss_score"), "Project CVEs and their scoring", ["project_name", "component_name", "cve", "cvss_version", "severity"], registry=registry)
     violations = prometheus.Gauge(adapter.prefix_metric_key("policy_violations"), "Project Policy violations", ["project_name", "component_name", "policy_name", "state"], registry=registry)
     client = api.create_client_from_env()
-    since = datetime.strptime(args.initial_start_date, day_format)
     active_project_names = []
 
     def _update_metrics():
-        nonlocal since, active_project_names
+        nonlocal active_project_names
         current_project_names: dict[str, bool] = {}
-        current_project_names.update(update_finding_metrics(client, cvss_score, since))
-        current_project_names.update(update_violation_metrics(client, violations, since))
-
-        # Always using today
-        since = datetime.now()
+        current_project_names.update(update_finding_metrics(client, cvss_score))
+        current_project_names.update(update_violation_metrics(client, violations))
 
         # Cleanup Prometheus stats for
         for project_name in active_project_names:
@@ -56,7 +51,6 @@ def handle_prometheus_metrics(args):
 def update_finding_metrics(
         client: owasp_dt.Client,
         instrument: prometheus.Gauge,
-        since: datetime,
 ) -> dict[str, bool]:
     current_active_projects: dict[str, bool] = {}
 
@@ -88,7 +82,6 @@ def update_finding_metrics(
             client=client,
             show_inactive=False,
             show_suppressed=False,
-            attributed_on_date_from=format_day(since),
         )
         assert resp.status_code == 200
         _add_findings(resp.parsed)
@@ -100,7 +93,6 @@ def update_finding_metrics(
 def update_violation_metrics(
         client: owasp_dt.Client,
         instrument: prometheus.Gauge,
-        since: datetime,
 ) -> dict[str, bool]:
     current_active_projects: dict[str, bool] = {}
     def _add_violations(violations: list[PolicyViolation]):
@@ -122,7 +114,6 @@ def update_violation_metrics(
                 show_inactive=False,
                 page_number=page_number,
                 page_size=1000,
-                occurred_on_date_from=format_day(since),
             )
         for violations in api.page_result(_loader):
             _add_violations(violations)

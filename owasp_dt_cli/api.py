@@ -1,17 +1,15 @@
 import json
-from datetime import datetime
 from typing import Generator, Callable, TypeVar
 
 from owasp_dt import Client
 from owasp_dt.api.finding import get_findings_by_project
 from owasp_dt.api.project import get_projects
-from owasp_dt.api.violation import get_violations
-from owasp_dt.models import Project, PolicyViolation, Finding
+from owasp_dt.models import Project, Finding
 from owasp_dt.types import Response
 from tinystream import Stream, Opt
 
 from owasp_dt_cli.config import reqenv, parse_true, getenv
-from owasp_dt_cli.models import compare_last_bom_import, format_day
+from owasp_dt_cli.models import compare_last_bom_import
 
 
 def create_client_from_env() -> Client:
