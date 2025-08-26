@@ -75,6 +75,7 @@ Setup a user with API key and the following permissions:
    - PROJECT_CREATION_UPLOAD (for the auto-create feature)
    - VIEW_VULNERABILITY
    - VIEW_POLICY_VIOLATION
+   - PORTFOLIO_MANAGEMENT (for modifying projects)
 
 ## Testing
 

@@ -40,7 +40,7 @@ def handle_project_upsert(args):
     if not empty(args.project_version):
         project.version = args.project_version
 
-    if not args.latest:
+    if args.latest:
         project.is_latest = args.latest
 
     if opt_uuid.present:

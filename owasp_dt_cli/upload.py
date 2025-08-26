@@ -7,6 +7,7 @@ from owasp_dt.api.project import get_projects, patch_project, get_project
 from owasp_dt.models import UploadBomBody, BomUploadResponse, Project
 
 from owasp_dt_cli import api
+from owasp_dt_cli.log import LOGGER
 
 def assert_project_identity(args):
     assert not empty(args.project_uuid) or not empty(args.project_name), "At least a project UUID or a project name is required"
@@ -61,6 +62,9 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
         for projects in api.page_result(_loader):
             for project in projects:
                 if project.version != args.project_version and project.active:
-                    patch_project.sync_detailed(client=client, uuid=project.uuid, body=Project(active=False))
+                    resp = patch_project.sync_detailed(client=client, uuid=project.uuid, body=Project(active=False))
+                    if resp.status_code not in (200, ):
+                        LOGGER.error(f"Unable to patch project '{project.uuid}'")
+
 
     return upload, client
