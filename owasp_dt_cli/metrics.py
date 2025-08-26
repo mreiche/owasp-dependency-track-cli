@@ -23,13 +23,10 @@ def handle_prometheus_metrics(args):
     active_project_names = []
 
     def _update_metrics():
-        nonlocal since, active_project_names
+        nonlocal active_project_names
         current_project_names: dict[str, bool] = {}
         current_project_names.update(update_finding_metrics(client, cvss_score))
         current_project_names.update(update_violation_metrics(client, violations))
-
-        # Always using today
-        since = datetime.now()
 
         # Cleanup Prometheus stats for
         for project_name in active_project_names:
