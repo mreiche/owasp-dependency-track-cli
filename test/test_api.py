@@ -8,6 +8,7 @@ from is_empty import empty
 from owasp_dt.api.bom import upload_bom
 from owasp_dt.api.config_property import update_config_property
 from owasp_dt.api.event import is_token_being_processed_1
+from owasp_dt.api.finding import get_findings_by_project
 from owasp_dt.api.license_ import get_license
 from owasp_dt.api.metrics import get_project_current_metrics
 from owasp_dt.api.metrics import get_vulnerability_metrics
@@ -20,21 +21,18 @@ from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, Config
 from owasp_dt.types import UNSET
 
 from owasp_dt_cli.analyze import retry
-from owasp_dt_cli.api import get_findings_by_project_uuid
-from test.common import client
+from test import test_project_name
 
 __base_dir = Path(__file__).parent
 __upload_token: str | None = None
 __project_uuid: str | None = None
 __mit_license_uuid: str | None = None
-__project_name = "test-api"
-
 
 def test_upload_sbom(client: owasp_dt.Client):
     global __upload_token
     with open(__base_dir / "files/test.sbom.xml") as sbom_file:
         resp = upload_bom.sync_detailed(client=client, body=UploadBomBody(
-            project_name=__project_name,
+            project_name=test_project_name,
             auto_create=True,
             bom=sbom_file.read()
         ))
@@ -62,7 +60,7 @@ def test_get_scan_status(client: owasp_dt.Client):
 @pytest.mark.depends(on=['test_upload_sbom'])
 def test_search_project_by_name(client: owasp_dt.Client):
     global __project_uuid
-    resp = get_projects.sync_detailed(client=client, name=__project_name)
+    resp = get_projects.sync_detailed(client=client, name=test_project_name)
     projects = resp.parsed
     assert len(projects) > 0
     assert projects[0].uuid is not None
@@ -75,7 +73,7 @@ def test_search_project_by_name(client: owasp_dt.Client):
     'test_get_vulnerabilities',
 ])
 def test_get_project_findings(client: owasp_dt.Client):
-    findings = get_findings_by_project_uuid(client=client, uuid=__project_uuid)
+    findings = get_findings_by_project.sync(client=client, uuid=__project_uuid)
     # assert len(findings) > 0
 
 

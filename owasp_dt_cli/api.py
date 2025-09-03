@@ -1,4 +1,3 @@
-import json
 from typing import Generator, Callable, TypeVar
 
 from owasp_dt import Client
@@ -13,8 +12,9 @@ from owasp_dt_cli.models import compare_last_bom_import
 
 
 def create_client_from_env() -> Client:
+    base_url = reqenv("OWASP_DTRACK_URL")
     return Client(
-        base_url=reqenv("OWASP_DTRACK_URL"),
+        base_url=f"{base_url}/api",
         headers={
             "X-Api-Key": reqenv("OWASP_DTRACK_API_KEY")
         },
@@ -25,12 +25,6 @@ def create_client_from_env() -> Client:
             #"no_proxy": getenv("NO_PROXY", "")
         }
     )
-
-# Wrapper for https://github.com/openapi-generators/openapi-python-client/issues/1256
-def get_findings_by_project_uuid(client: Client, uuid: str) -> list[Finding]:
-    resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
-    assert resp.status_code != 401
-    return json.loads(resp.content)
 
 def find_project_by_name(client: Client, name: str, version: str = None, latest: bool = None) -> Opt[Project]:
     def _loader(page_number: int):

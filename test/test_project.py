@@ -6,8 +6,6 @@ import pytest
 from owasp_dt.api.project import get_project
 from tinystream import Opt
 
-from test.common import client, parser
-
 __base_dir = Path(__file__).parent
 
 __project_uuid = None

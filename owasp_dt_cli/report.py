@@ -1,5 +1,5 @@
 from colorama import Fore, Style, init
-from owasp_dt.models import PolicyViolation, Component
+from owasp_dt.models import PolicyViolation, Component, FindingComponent
 from tabulate import tabulate
 
 from owasp_dt_cli.api import Finding
@@ -44,27 +44,18 @@ def format_violation_state(state: str):
 
     return color + state + Style.RESET_ALL
 
-def format_component_version(component: Component):
-    if isinstance(component, dict):
-        version = component["version"]
-        if "latestVersion" in component:
-            version += f" ({component["latestVersion"]})"
-    else:
-        version = component.version
-        if "latestVersion" in component:
-            version += f" ({component.latestVersion})"
+def format_component_version(component: FindingComponent|Component):
+    version = component.version
+    if isinstance(component, FindingComponent):
+        if component.latest_version:
+            version += f" ({component.latest_version})"
 
     return version
 
-def format_component_identifier(component: Component):
-    if isinstance(component, dict):
-        name = component["name"]
-        if "group" in component:
-            name = f"{component["group"]}.{name}"
-    else:
-        name = component.name
-        if component.group:
-            name = f"{component.group}.{name}"
+def format_component_identifier(component: FindingComponent|Component):
+    name = component.name
+    if component.group:
+        name = f"{component.group}.{name}"
 
     return name
 
@@ -78,10 +69,10 @@ def print_findings_table(findings: list[Finding]):
     data = []
     for finding in findings:
         data.append([
-            format_component_identifier(finding["component"]),
-            format_component_version(finding["component"]),
-            f'{finding["vulnerability"]["vulnId"]} ({shorten(finding["vulnerability"]["description"])})',
-            format_severity(finding["vulnerability"]["severity"]),
+            format_component_identifier(finding.component),
+            format_component_version(finding.component),
+            f'{finding.vulnerability.vuln_id} ({shorten(finding.vulnerability.description)})',
+            format_severity(finding.vulnerability.severity),
         ])
     if len(data) > 0:
         print("FINDINGS")

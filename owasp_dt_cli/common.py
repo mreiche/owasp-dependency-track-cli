@@ -14,7 +14,7 @@ from owasp_dt_cli.log import LOGGER
 
 def retry(callable: Callable, seconds: float, wait_time: float = 2):
     retries = math.ceil(seconds / wait_time)
-    start_date = datetime.now()
+    #start_date = datetime.now()
     exception = None
     ret = None
     for i in range(retries):
@@ -27,7 +27,8 @@ def retry(callable: Callable, seconds: float, wait_time: float = 2):
         sleep(wait_time)
 
     if exception:
-        raise Exception(f"{exception} after {datetime.now()-start_date}")
+        raise exception
+        #raise Exception(f"{exception} after {datetime.now()-start_date}")
 
     return ret
 
