@@ -15,7 +15,7 @@ pip install owasp-dependency-track-cli
 ## Usage
 
 ```shell
-export OWASP_DTRACK_URL="http://localhost:8081/api"
+export OWASP_DTRACK_URL="http://localhost:8081"
 export OWASP_DTRACK_VERIFY_SSL="False"
 export OWASP_DTRACK_API_KEY="xyz"
 export SEVERITY_THRESHOLD_HIGH="3"
@@ -28,7 +28,7 @@ As Container runtime:
 ```shell
 podman|docker \
  run --rm -v"$(pwd):$(pwd)" \
- -eOWASP_DTRACK_URL="http://192.168.1.100:8081/api" \
+ -eOWASP_DTRACK_URL="http://192.168.1.100:8081" \
  -eOWASP_DTRACK_VERIFY_SSL="false" \
  -eOWASP_DTRACK_API_KEY="xyz" \
  ghcr.io/mreiche/owasp-dependency-track-cli:latest test --project-name webapp2 --auto-create "$(pwd)/test/files/test.sbom.xml"
@@ -54,7 +54,7 @@ owasp-dtrack-cli project upsert --json '{ "name": "My project" }'
 
 ## Environment variables
 ```shell
-OWASP_DTRACK_URL="http://localhost:8081/api"  # Base-URL to OWASP Dependency Track API (mind '/api' as base path)
+OWASP_DTRACK_URL="http://localhost:8081"  # Base-URL to OWASP Dependency Track
 OWASP_DTRACK_VERIFY_SSL="False"               # Do not verify SSL
 OWASP_DTRACK_API_KEY="xyz"                    # Your OWASP Dependency Track API Key (see below)
 SEVERITY_THRESHOLD_[CRITICAL|HIGH|MEDIUM|LOW|UNASSIGNED]="-1"  # Threshold for findings severity

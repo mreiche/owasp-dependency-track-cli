@@ -13,8 +13,9 @@ from owasp_dt_cli.models import compare_last_bom_import
 
 
 def create_client_from_env() -> Client:
+    base_url = reqenv("OWASP_DTRACK_URL")
     return Client(
-        base_url=reqenv("OWASP_DTRACK_URL"),
+        base_url=f"{base_url}/api",
         headers={
             "X-Api-Key": reqenv("OWASP_DTRACK_API_KEY")
         },
