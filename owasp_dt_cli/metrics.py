@@ -60,14 +60,14 @@ def update_finding_metrics(
             component = finding.component
             current_active_projects[component.project_name] = True
 
-            if "cvssV2BaseScore" in vulnerability.additional_properties and vulnerability.additional_properties["cvssV2BaseScore"] >= 0:
+            if vulnerability.cvss_v2_base_score and vulnerability.cvss_v2_base_score > 0:
                 instrument.labels(*[
                     component.project_name,
                     component.name,
                     vulnerability.vuln_id,
                     "v2",
                     vulnerability.severity,
-                ]).set(vulnerability.additional_properties["cvssV2BaseScore"])
+                ]).set(vulnerability.cvss_v2_base_score)
 
             if vulnerability.cvss_v3_base_score and vulnerability.cvss_v3_base_score >= 0:
                 instrument.labels(*[

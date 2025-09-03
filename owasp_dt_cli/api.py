@@ -1,4 +1,3 @@
-import json
 from typing import Generator, Callable, TypeVar
 
 from owasp_dt import Client
@@ -31,7 +30,7 @@ def create_client_from_env() -> Client:
 def get_findings_by_project_uuid(client: Client, uuid: str) -> list[Finding]:
     resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
     assert resp.status_code != 401
-    return json.loads(resp.content)
+    return resp.parsed
 
 def find_project_by_name(client: Client, name: str, version: str = None, latest: bool = None) -> Opt[Project]:
     def _loader(page_number: int):

@@ -13,7 +13,7 @@ def handle_test(args):
     severity_count: dict[str, int] = {}
     severity_threshold: dict[str, int] = {}
     for finding in findings:
-        severity = finding["vulnerability"]["severity"].upper()
+        severity = finding.vulnerability.severity.upper()
         if severity not in severity_count:
             severity_count[severity] = 0
             severity_threshold[severity] = int(config.getenv(f"SEVERITY_THRESHOLD_{severity}", "-1"))

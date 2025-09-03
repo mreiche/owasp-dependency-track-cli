@@ -5,7 +5,6 @@ from owasp_dt import Client
 
 from owasp_dt_cli import api
 from owasp_dt_cli.common import retry
-from test.common import client, parser
 
 __base_dir = Path(__file__).parent
 

@@ -6,7 +6,6 @@ from owasp_dt import Client
 from owasp_dt.api.project import get_projects
 
 from owasp_dt_cli import api
-from test.common import client, parser
 
 __base_dir = Path(__file__).parent
 

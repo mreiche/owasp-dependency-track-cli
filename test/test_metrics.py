@@ -1,8 +1,5 @@
 import pytest
 
-from test.common import parser
-
-
 @pytest.mark.depends(on=["test/test_test.py::test_test"])
 def test_prometheus(capsys, parser):
     args = parser.parse_args([
