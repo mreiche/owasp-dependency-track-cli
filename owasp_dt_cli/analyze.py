@@ -2,7 +2,7 @@ import os
 
 from is_empty import empty
 from owasp_dt import Client
-from owasp_dt.api.finding import analyze_project
+from owasp_dt.api.finding import analyze_project, get_findings_by_project
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
 from owasp_dt.models import PolicyViolation, BomUploadResponse
@@ -18,7 +18,9 @@ def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[Polic
     vulnerabilities = resp.parsed
     assert len(vulnerabilities) > 0, "No vulnerabilities in database"
 
-    findings = api.get_findings_by_project_uuid(client=client, uuid=uuid)
+    resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
+    assert resp.status_code != 401
+    findings = resp.parsed
     report.print_findings_table(findings)
 
     resp = get_violations_by_project.sync_detailed(client=client, uuid=uuid)

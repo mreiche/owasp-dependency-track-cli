@@ -26,12 +26,6 @@ def create_client_from_env() -> Client:
         }
     )
 
-# Wrapper for https://github.com/openapi-generators/openapi-python-client/issues/1256
-def get_findings_by_project_uuid(client: Client, uuid: str) -> list[Finding]:
-    resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
-    assert resp.status_code != 401
-    return resp.parsed
-
 def find_project_by_name(client: Client, name: str, version: str = None, latest: bool = None) -> Opt[Project]:
     def _loader(page_number: int):
         return get_projects.sync_detailed(
