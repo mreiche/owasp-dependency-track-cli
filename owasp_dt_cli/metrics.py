@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import owasp_dt
 import prometheus_client as prometheus
@@ -58,25 +58,25 @@ def update_finding_metrics(
         for finding in findings:
             vulnerability = finding.vulnerability
             component = finding.component
-            current_active_projects[component["projectName"]] = True
+            current_active_projects[component.project_name] = True
 
-            if "cvssV2BaseScore" in vulnerability and vulnerability["cvssV2BaseScore"] >= 0:
+            if "cvssV2BaseScore" in vulnerability.additional_properties and vulnerability.additional_properties["cvssV2BaseScore"] >= 0:
                 instrument.labels(*[
-                    component["projectName"],
-                    component["name"],
-                    vulnerability["vulnId"],
+                    component.project_name,
+                    component.name,
+                    vulnerability.vuln_id,
                     "v2",
-                    vulnerability["severity"],
-                ]).set(vulnerability["cvssV2BaseScore"])
+                    vulnerability.severity,
+                ]).set(vulnerability.additional_properties["cvssV2BaseScore"])
 
-            if "cvssV3BaseScore" in vulnerability and vulnerability["cvssV3BaseScore"] >= 0:
+            if vulnerability.cvss_v3_base_score and vulnerability.cvss_v3_base_score >= 0:
                 instrument.labels(*[
-                    component["projectName"],
-                    component["name"],
-                    vulnerability["vulnId"],
+                    component.project_name,
+                    component.name,
+                    vulnerability.vuln_id,
                     "v3",
-                    vulnerability["severity"],
-                ]).set(vulnerability["cvssV3BaseScore"])
+                    vulnerability.severity,
+                ]).set(vulnerability.cvss_v3_base_score)
     try:
         resp = get_all_findings_1.sync_detailed(
             client=client,
