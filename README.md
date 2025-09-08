@@ -94,6 +94,9 @@ podman|docker compose up
 podman run -it --rm --network=test_default  -v "$(pwd)/test:/test" postgres:latest pg_dump -h postgres -d dtrack -U "dtrack" -p "5432" -f "/test/postgres-init/init.sql"
 ```
 
-## References
+## More OWASP Dependency Track utils
 
-- This CLI is using the Python API client: https://github.com/mreiche/owasp-dependency-track-python-client
+This library is part of a wider OWASP Dependency Track tool chain:
+- OWASP Dependency Track Python API client: https://github.com/mreiche/owasp-dependency-track-python-client
+- OWASP Dependency Track CLI: https://github.com/mreiche/owasp-dependency-track-cli
+- OWASP Dependency Track Azure DevOps Sync: https://github.com/mreiche/owasp-dependency-track-azure-devops

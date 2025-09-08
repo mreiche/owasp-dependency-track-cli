@@ -31,12 +31,11 @@ jobs:
           python-version: '3.13'
           cache: 'pip'
           cache-dependency-path: |
-            requirements.txt
-            dev-requirements.txt
+            requirements*.txt
 
       - name: Install build tools
         run: |
-          pip install -r dev-requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Extract version from tag
         id: version
