@@ -7,19 +7,19 @@ env:
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - owasp_dt_cli/**
-      - test/**
-      - Dockerfile
-      - requirements.txt
+#    paths:
+#      - owasp_dt_cli/**
+#      - test/**
+#      - Dockerfile
+#      - requirements.txt
   pull_request:
     branches: [ "main" ]
-    paths:
-      - owasp_dt_cli/**
-      - test/**
-      - Dockerfile
-      - requirements.txt
-      - .github/**
+#    paths:
+#      - owasp_dt_cli/**
+#      - test/**
+#      - Dockerfile
+#      - requirements.txt
+#      - .github/**
   workflow_dispatch:
 
 permissions:
@@ -35,32 +35,38 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
+
       - name: Run docker-compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "./test/docker-compose.yml"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
           cache: "pip"
           cache-dependency-path: |
-            requirements.txt
-            dev-requirements.txt
-      - run: pip install -r requirements.txt -r dev-requirements.txt
+            requirements*.txt
+
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+
       - name: Run tests
         env:
           PYTHONPATH: "."
         run: |
           pytest --junitxml=./test-results/tests.xml --cov=./owasp_dt_cli ./test
+
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: |
             test-results/**/*.xml
+
       - name: Generate coverage report
         run: coverage xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         continue-on-error: true
@@ -69,6 +75,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           verbose: true
+
       - uses: ./.github/actions/build-container
         with:
           user: ${{ github.actor }}
