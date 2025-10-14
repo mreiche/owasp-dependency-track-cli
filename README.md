@@ -91,7 +91,7 @@ podman|docker compose up
 
 ### Update the test database
 ```shell
-podman run -it --rm --network=test_default  -v "$(pwd)/test:/test" postgres:latest pg_dump -h postgres -d dtrack -U "dtrack" -p "5432" -f "/test/postgres-init/init.sql"
+podman run -it --rm --network=test_default  -v "$(pwd)/test:/test" postgres:17-alpine pg_dump -h postgres -d dtrack -U "dtrack" -p "5432" -f "/test/postgres-init/init.sql"
 ```
 
 ## More OWASP Dependency Track utils
