@@ -32,6 +32,35 @@ def assert_test(capsys, parser):
 def test_test(capsys, parser):
     retry(lambda: assert_test(capsys, parser), 60, 10)
 
+@pytest.mark.depends("test_test")
+def test_vulnerability_severity_threshold(monkeypatch, parser):
+    monkeypatch.setenv("SEVERITY_THRESHOLD_HIGH", "1")
+
+    args = parser.parse_args([
+        "analyze",
+        "--project-name",
+        "test-project",
+        "--latest"
+    ])
+
+    with pytest.raises(ValueError, match="SEVERITY_THRESHOLD_HIGH hit: 1"):
+        args.func(args)
+
+@pytest.mark.depends("test_test")
+def test_vulnerability_cvss_threshold(monkeypatch, parser):
+    monkeypatch.setenv("CVSS_V3_THRESHOLD", "20")
+
+    args = parser.parse_args([
+        "analyze",
+        "--project-name",
+        "test-project",
+        "--latest"
+    ])
+
+    with pytest.raises(ValueError, match="CVSS_V3_THRESHOLD hit: 27.8"):
+        args.func(args)
+
+
 @pytest.mark.depends(on=['test_test'])
 def test_uploaded(client: Client):
     opt = api.find_project_by_name(client=client, name="test-project")

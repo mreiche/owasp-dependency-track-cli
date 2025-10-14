@@ -55,13 +55,15 @@ owasp-dtrack-cli project upsert --json '{ "name": "My project" }'
 ## Environment variables
 ```shell
 OWASP_DTRACK_URL="http://localhost:8081"  # Base-URL to OWASP Dependency Track
-OWASP_DTRACK_VERIFY_SSL="False"               # Do not verify SSL
-OWASP_DTRACK_API_KEY="xyz"                    # Your OWASP Dependency Track API Key (see below)
+OWASP_DTRACK_VERIFY_SSL="False"           # Do not verify SSL
+OWASP_DTRACK_API_KEY="xyz"                # Your OWASP Dependency Track API Key (see below)
 SEVERITY_THRESHOLD_[CRITICAL|HIGH|MEDIUM|LOW|UNASSIGNED]="-1"  # Threshold for findings severity
-VIOLATION_THRESHOLD_[FAIL|WARN|INFO]="-1"     # Threshold for policy violations
-ANALYZE_TIMEOUT_SEC="300"                     # Timeout for analyzation in seconds
-PROJECT_TIMEOUT_SEC="20"                      # Timeout for searching the project by name in seconds
-HTTPS_PROXY=""                                # URL for HTTP(S) proxy
+VIOLATION_THRESHOLD_[FAIL|WARN|INFO]="-1" # Threshold for policy violations
+CVSS_V3_THRESHOLD="-1"                    # Threshold for cumulated CVSS V3
+CVSS_V2_THRESHOLD="-1"                    # Threshold for cumulated CVSS V2
+ANALYZE_TIMEOUT_SEC="300"                 # Timeout for analyzation in seconds
+PROJECT_TIMEOUT_SEC="20"                  # Timeout for searching the project by name in seconds
+HTTPS_PROXY=""                            # URL for HTTP(S) proxy
 ```
 
 ## API-Key
