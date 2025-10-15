@@ -29,10 +29,11 @@ def assert_test(capsys, parser):
     assert "Forbid MIT license" in captured.out
 
 @pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
+@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
 def test_test(capsys, parser):
-    retry(lambda: assert_test(capsys, parser), 60, 10)
+    retry(lambda: assert_test(capsys, parser), 10, 2)
 
-@pytest.mark.depends("test_test")
+@pytest.mark.depends(on=['test_test'])
 def test_vulnerability_severity_threshold(monkeypatch, parser):
     monkeypatch.setenv("SEVERITY_THRESHOLD_HIGH", "1")
 
@@ -46,7 +47,7 @@ def test_vulnerability_severity_threshold(monkeypatch, parser):
     with pytest.raises(ValueError, match="SEVERITY_THRESHOLD_HIGH hit: 1"):
         args.func(args)
 
-@pytest.mark.depends("test_test")
+@pytest.mark.depends(on=['test_test'])
 def test_vulnerability_cvss_threshold(monkeypatch, parser):
     monkeypatch.setenv("CVSS_V3_THRESHOLD", "20")
 

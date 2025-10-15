@@ -77,7 +77,7 @@ def test_get_project_findings(client: owasp_dt.Client):
     # assert len(findings) > 0
 
 
-@pytest.mark.xfail(reason="Metrics not available on fresh installations")
+#@pytest.mark.xfail(reason="Metrics not available on fresh installations")
 @pytest.mark.depends(on=['test_search_project_by_name', 'test_get_scan_status'])
 def test_get_project_metrics(client: owasp_dt.Client):
     resp = get_project_current_metrics.sync_detailed(client=client, uuid=__project_uuid)
@@ -90,7 +90,8 @@ def test_get_project_violations(client: owasp_dt.Client):
     violations = resp.parsed
 
 
-@pytest.mark.xfail(reason="Metrics not available on fresh installations")
+#@pytest.mark.xfail(reason="Metrics not available on fresh installations")
+@pytest.mark.depends(on="test_get_vulnerabilities")
 def test_get_vulnerability_metrics(client: owasp_dt.Client):
     resp = get_vulnerability_metrics.sync_detailed(client=client)
     vulnerabilities = resp.parsed
