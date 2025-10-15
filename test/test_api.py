@@ -72,9 +72,10 @@ def test_search_project_by_name(client: owasp_dt.Client):
     'test_get_scan_status',
     'test_get_vulnerabilities',
 ])
+@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
 def test_get_project_findings(client: owasp_dt.Client):
     findings = get_findings_by_project.sync(client=client, uuid=__project_uuid)
-    # assert len(findings) > 0
+    assert len(findings) > 0
 
 
 #@pytest.mark.xfail(reason="Metrics not available on fresh installations")
@@ -91,13 +92,6 @@ def test_get_project_violations(client: owasp_dt.Client):
 
 
 #@pytest.mark.xfail(reason="Metrics not available on fresh installations")
-@pytest.mark.depends(on="test_get_vulnerabilities")
-def test_get_vulnerability_metrics(client: owasp_dt.Client):
-    resp = get_vulnerability_metrics.sync_detailed(client=client)
-    vulnerabilities = resp.parsed
-    assert len(vulnerabilities) > 0
-
-
 @pytest.mark.depends(on=['test_trigger_vulnerabilities_update'])
 def test_get_vulnerabilities(client: owasp_dt.Client):
     def _get_vulnerabilities():
@@ -107,6 +101,16 @@ def test_get_vulnerabilities(client: owasp_dt.Client):
 
     retry(_get_vulnerabilities, 600)
 
+
+@pytest.mark.depends(on=["test_get_vulnerabilities", 'test_upload_sbom'])
+@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
+def test_get_vulnerability_metrics(client: owasp_dt.Client):
+    def _get_vulnerability_metrics():
+        resp = get_vulnerability_metrics.sync_detailed(client=client)
+        vulnerabilities = resp.parsed
+        assert len(vulnerabilities) > 0
+
+    retry(_get_vulnerability_metrics, 10)
 
 def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
     config = ConfigProperty(
