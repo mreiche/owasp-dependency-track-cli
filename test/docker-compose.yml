@@ -6,7 +6,7 @@
 
 services:
   apiserver:
-    image: dependencytrack/apiserver
+    image: dependencytrack/apiserver:4.13.5
     pull_policy: always
     depends_on:
       postgres:
@@ -115,7 +115,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: dependencytrack/frontend
+    image: dependencytrack/frontend:4.13.5
     pull_policy: always
 #    depends_on:
 #      apiserver:
@@ -169,4 +169,4 @@ services:
 volumes:
   dtrack-data: {}
   postgres-data: {}
-  #trivy-cache: {}
+#  trivy-cache: {}

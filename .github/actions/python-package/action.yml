@@ -1,0 +1,37 @@
+name: 'Python package'
+description: 'Builds and published a Python package to pypi'
+inputs:
+  pypiApiToken:
+    required: true
+    description: API token for publish pypi package
+  version:
+    required: true
+    description: Package version
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+        cache-dependency-path: pyproject.toml
+
+    - name: Build the package
+      run: |
+        echo "Build package with detected version: ${PACKAGE_VERSION}"
+        pip install -e .[build]
+        python -m build
+      env:
+        PACKAGE_VERSION: ${{ inputs.version }}
+      shell: bash
+
+    - name: Publish to PyPI
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ inputs.pypiApiToken }}
+      run: |
+        twine upload dist/*
+      shell: bash
