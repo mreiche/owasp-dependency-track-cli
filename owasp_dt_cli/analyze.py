@@ -58,7 +58,50 @@ def handle_analyze(args):
     assert isinstance(bom_upload, BomUploadResponse), f"Unexpected response: {bom_upload}"
 
     wait_for_analyzation(client=client, token=bom_upload.token)
-    report_project(client=client, uuid=args.project_uuid)
+    findings, violations = report_project(client=client, uuid=args.project_uuid)
+    handle_thresholds(findings, violations)
+
+
+def handle_thresholds(findings: list[Finding], violations: list[PolicyViolation]):
+    severity_count: dict[str, int] = {}
+    severity_threshold: dict[str, int] = {}
+    cvss_v3_total = 0
+    cvss_v3_threshold = int(config.getenv("CVSS_V3_THRESHOLD", "-1"))
+    cvss_v2_total = 0
+    cvss_v2_threshold = int(config.getenv("CVSS_V2_THRESHOLD", "-1"))
+
+    for finding in findings:
+        vulnerability = finding.vulnerability
+        severity = vulnerability.severity.upper()
+        if severity not in severity_count:
+            severity_count[severity] = 0
+            severity_threshold[severity] = int(config.getenv(f"SEVERITY_THRESHOLD_{severity}", "-1"))
+
+        severity_count[severity] += 1
+        if severity_count[severity] >= severity_threshold[severity] >= 0:
+            raise ValueError(f"SEVERITY_THRESHOLD_{severity} hit: {severity_count[severity]}")
+
+        if vulnerability.cvss_v3_base_score:
+            cvss_v3_total += vulnerability.cvss_v3_base_score
+            if cvss_v3_total >= cvss_v3_threshold >= 0:
+                raise ValueError(f"CVSS_V3_THRESHOLD hit: {cvss_v3_total}")
+
+        if vulnerability.cvss_v2_base_score:
+            cvss_v2_total += vulnerability.cvss_v2_base_score
+            if cvss_v2_total >= cvss_v2_threshold >= 0:
+                raise ValueError(f"CVSS_V2_THRESHOLD hit: {cvss_v2_total}")
+
+    violation_count: dict[str, int] = {}
+    violation_threshold: dict[str, int] = {}
+    for violation in violations:
+        state = violation.policy_condition.policy.violation_state.name.upper()
+        if state not in violation_count:
+            violation_count[state] = 0
+            violation_threshold[state] = int(config.getenv(f"VIOLATION_THRESHOLD_{state}", "-1"))
+
+        violation_count[state] += 1
+        if violation_count[state] >= violation_threshold[state] >= 0:
+            raise ValueError(f"VIOLATION_THRESHOLD_{state} hit: {violation_count[state]}")
 
 
 def wait_for_analyzation(client: Client, token: str) -> IsTokenBeingProcessedResponse:
