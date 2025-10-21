@@ -49,8 +49,8 @@ def test_analyze_by_name(version: str, parser):
 def test_upload_by_uuid(version: str, client: Client, parser):
     global __project_uuid
     project = api.find_project_by_name(name=__project_name, client=client)
-    assert project.present
-    __project_uuid = str(project.get().uuid)
+    assert project
+    __project_uuid = str(project.uuid)
     assert isinstance(__project_uuid, str)
 
     args = parser.parse_args([

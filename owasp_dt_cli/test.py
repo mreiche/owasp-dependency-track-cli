@@ -1,6 +1,5 @@
 from owasp_dt_cli import config
-from owasp_dt_cli.analyze import report_project, assert_project_uuid
-from owasp_dt_cli.common import wait_for_analyzation
+from owasp_dt_cli.analyze import report_project, assert_project_uuid, wait_for_analyzation
 from owasp_dt_cli.upload import handle_upload
 
 

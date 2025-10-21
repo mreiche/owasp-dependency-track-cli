@@ -52,9 +52,8 @@ def handle_project_upsert(args):
         assert not isinstance(project.name, Unset) and not empty(project.name), "At least a project name is required"
         resp = create_project.sync_detailed(client=client, body=project)
         if resp.status_code == 409:
-            found = api.find_project_by_name(client=client, name=project.name, version=project.version, latest=project.is_latest)
-            assert found.present, "The backend complains about project naming conflict, but the project does not exists, this should not happen"
-            existing_project = found.get()
+            existing_project = api.find_project_by_name(client=client, name=project.name, version=project.version, latest=project.is_latest)
+            assert isinstance(existing_project, Project), "The backend complains about project naming conflict, but the project does not exists, this should not happen"
             resp = patch_project.sync_detailed(client=client, uuid=existing_project.uuid, body=project)
             assert resp.status_code in [304, 200, 201]
             print(existing_project.uuid)

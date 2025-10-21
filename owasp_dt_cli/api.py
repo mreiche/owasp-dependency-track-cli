@@ -1,11 +1,10 @@
 from typing import Generator, Callable, TypeVar
 
 from owasp_dt import Client
-from owasp_dt.api.finding import get_findings_by_project
 from owasp_dt.api.project import get_projects
-from owasp_dt.models import Project, Finding
+from owasp_dt.models import Project
 from owasp_dt.types import Response
-from tinystream import Stream, Opt
+from tinystream import Stream
 
 from owasp_dt_cli.config import reqenv, parse_true, getenv
 from owasp_dt_cli.models import compare_last_bom_import
@@ -26,7 +25,7 @@ def create_client_from_env() -> Client:
         }
     )
 
-def find_project_by_name(client: Client, name: str, version: str = None, latest: bool = None) -> Opt[Project]:
+def find_project_by_name(client: Client, name: str, version: str = None, latest: bool = None) -> Project|None:
     def _loader(page_number: int):
         return get_projects.sync_detailed(
             client=client,
@@ -35,23 +34,25 @@ def find_project_by_name(client: Client, name: str, version: str = None, latest:
             page_size=1000
         )
 
-    all_projects = []
+    def _filter_version(project: Project):
+        return project.version == version
+
+    def _filter_latest(project: Project):
+        return project.is_latest == latest
+
     for projects in page_result(_loader):
-        all_projects.extend(projects)
+        stream = Stream(projects)
+        if version:
+            stream = stream.filter(_filter_version)
 
-    stream = Stream(projects)
-    if version:
-        def _filter_version(project: Project):
-            return project.version == version
-        stream = stream.filter(_filter_version)
+        if latest:
+            stream = stream.filter(_filter_latest)
 
-    if latest:
-        def _filter_latest(project: Project):
-            return project.is_latest == latest
-        stream = stream.filter(_filter_latest)
+        opt_project = stream.sort(compare_last_bom_import).next()
+        if opt_project.present:
+            return opt_project.get()
 
-    opt = stream.sort(compare_last_bom_import).next()
-    return opt
+    return None
 
 T = TypeVar('T')
 

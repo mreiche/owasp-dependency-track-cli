@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 
 import pytest
@@ -32,9 +33,26 @@ def assert_test(capsys, parser):
 def test_test(capsys, parser):
     retry(lambda: assert_test(capsys, parser), 60, 10)
 
+@pytest.mark.skip(reason="This is a manual test against external Dependency Track installations")
+def test_external(capsys, parser):
+    args = parser.parse_args([
+        "test",
+        "--project-name",
+        "test-project",
+        "--auto-create",
+        "--latest",
+        "--keep-previous",
+        "--project-version",
+        f"latest-{random.randint(0, 99999)}",
+        str(__base_dir / "files/test.sbom.xml"),
+    ])
+    args.func(args)
+    captured = capsys.readouterr()
+    assert "NO FINDINGS" not in captured.out
+
 @pytest.mark.depends(on=['test_test'])
 def test_uploaded(client: Client):
-    opt = api.find_project_by_name(client=client, name="test-project")
-    project = opt.get()
+    project = api.find_project_by_name(client=client, name="test-project")
+    assert project is not None
     assert project.version == "latest"
     assert project.is_latest == True

@@ -2,14 +2,14 @@ import os
 
 from is_empty import empty
 from owasp_dt import Client
+from owasp_dt.api.event import is_token_being_processed_1
 from owasp_dt.api.finding import analyze_project, get_findings_by_project
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
+from owasp_dt.models import IsTokenBeingProcessedResponse, Finding
 from owasp_dt.models import PolicyViolation, BomUploadResponse
 
-from owasp_dt_cli import api, report
-from owasp_dt_cli.api import create_client_from_env, Finding
-from owasp_dt_cli.common import retry, wait_for_analyzation
+from owasp_dt_cli import api, report, config, log, common
 from owasp_dt_cli.upload import assert_project_identity
 
 
@@ -28,26 +28,27 @@ def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[Polic
     report.print_violations_table(violations)
     return findings, violations
 
+
 def assert_project_uuid(client: Client, args):
     def _find_project():
-        opt = api.find_project_by_name(
+        project = api.find_project_by_name(
             client=client,
             name=args.project_name,
             version=args.project_version,
             latest=args.latest
         )
-        assert opt.present, f"Project not found: {args.project_name}:{args.project_version}" + (f" (latest)" if args.latest else "")
-        return opt.get()
+        assert project is not None, f"Project not found: {args.project_name}:{args.project_version}" + (f" (latest)" if args.latest else "")
+        return project
 
     if empty(args.project_uuid):
-        project = retry(_find_project, int(os.getenv("PROJECT_TIMEOUT_SEC", "20")))
+        project = common.retry(_find_project, int(os.getenv("PROJECT_TIMEOUT_SEC", "20")))
         args.project_uuid = project.uuid
 
 
 def handle_analyze(args):
     assert_project_identity(args)
 
-    client = create_client_from_env()
+    client = api.create_client_from_env()
 
     assert_project_uuid(client=client, args=args)
     resp = analyze_project.sync_detailed(client=client, uuid=args.project_uuid)
@@ -58,3 +59,14 @@ def handle_analyze(args):
 
     wait_for_analyzation(client=client, token=bom_upload.token)
     report_project(client=client, uuid=args.project_uuid)
+
+
+def wait_for_analyzation(client: Client, token: str) -> IsTokenBeingProcessedResponse:
+    def _read_process_status():
+        log.LOGGER.info(f"Waiting for token '{token}' being processed...")
+        resp = is_token_being_processed_1.sync_detailed(client=client, uuid=token)
+        status = resp.parsed
+        assert isinstance(status, IsTokenBeingProcessedResponse)
+        assert status.processing is False
+
+    return common.retry(_read_process_status, int(config.getenv("ANALYZE_TIMEOUT_SEC", "300")))

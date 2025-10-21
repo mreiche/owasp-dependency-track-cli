@@ -20,7 +20,7 @@ from owasp_dt.api.vulnerability import get_all_vulnerabilities
 from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType, Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, PolicyConditionOperator, License
 from owasp_dt.types import UNSET
 
-from owasp_dt_cli.analyze import retry
+from owasp_dt_cli import common
 from test import test_project_name
 
 __base_dir = Path(__file__).parent
@@ -104,7 +104,7 @@ def test_get_vulnerabilities(client: owasp_dt.Client):
         vulnerabilities = resp.parsed
         assert len(vulnerabilities) > 0
 
-    retry(_get_vulnerabilities, 600)
+    common.retry(_get_vulnerabilities, 600)
 
 
 def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
@@ -164,7 +164,7 @@ def test_get_violations(client: owasp_dt.Client):
         violations = resp.parsed
         assert len(violations) > 0
 
-    retry(_get_violations, 600)
+    common.retry(_get_violations, 600)
 
 
 def test_proxy_fails(monkeypatch, client: owasp_dt.Client):

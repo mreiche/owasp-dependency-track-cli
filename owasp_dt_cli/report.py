@@ -1,8 +1,6 @@
 from colorama import Fore, Style, init
-from owasp_dt.models import PolicyViolation, Component, FindingComponent
+from owasp_dt.models import PolicyViolation, Component, FindingComponent, Finding
 from tabulate import tabulate
-
-from owasp_dt_cli.api import Finding
 
 init(autoreset=True)
 
