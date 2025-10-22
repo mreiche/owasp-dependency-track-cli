@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
 from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup
+from owasp_dt_cli.report import handle_report
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
 
@@ -31,7 +32,7 @@ def add_project_identity_params(parser: ArgumentParser):
     parser.add_argument("--project-uuid", help="Project UUID", required=False)
 
 def add_project_version_params(parser: ArgumentParser):
-    parser.add_argument("--project-version", help="Project version", default="latest")
+    parser.add_argument("--project-version", help="Project version", required=False)
     parser.add_argument("--latest", help="Project version is latest", action='store_true', default=False)
 
 def create_parser():
@@ -42,21 +43,25 @@ def create_parser():
     parser.add_argument("--env", help="Environment file to load", type=pathlib.Path, default=None)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    test = subparsers.add_parser("test", help="Uploads and analyzes a SBOM.")
+    test = subparsers.add_parser("test", help="Uploads a SBOM, analyzes and reports the according project")
     add_sbom_file(test)
     add_upload_params(test)
     test.set_defaults(func=handle_test)
 
-    upload = subparsers.add_parser("upload", help="Uploads a SBOM only. Requires permission: BOM_UPLOAD")
+    upload = subparsers.add_parser("upload", help="Uploads a SBOM only (requires permission: BOM_UPLOAD)")
     add_sbom_file(upload)
     add_upload_params(upload)
     upload.set_defaults(func=handle_upload)
 
-    analyze = subparsers.add_parser("analyze", help="Analyzes a projects and creates a findings report. Requires permissions: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY")
+    analyze = subparsers.add_parser("analyze", help="Analyzes and reports a project")
     add_project_params(analyze)
     analyze.set_defaults(func=handle_analyze)
 
-    metrics = subparsers.add_parser("metrics", help="Provides metrics. Requires permissions: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY")
+    report = subparsers.add_parser("report", help="Creates a report only (requires permissions: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY)")
+    add_project_params(report)
+    report.set_defaults(func=handle_report)
+
+    metrics = subparsers.add_parser("metrics", help="Provides metrics (requires permissions: VIEW_POLICY_VIOLATION, VIEW_VULNERABILITY)")
     metrics_sub_parsers = metrics.add_subparsers(dest="type", required=True)
     prometheus = metrics_sub_parsers.add_parser("prometheus", help="Provides Prometheus metrics for findings and violations")
     prometheus.add_argument("--serve", help="Setup a HTTP server", action='store_true', default=False)

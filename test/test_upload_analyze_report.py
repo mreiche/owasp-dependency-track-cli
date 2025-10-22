@@ -44,6 +44,18 @@ def test_analyze_by_name(version: str, parser):
     args.func(args)
 
 
+@pytest.mark.depends(on=['test_analyze_by_name'])
+@pytest.mark.parametrize("version", [__name_version])
+def test_report_by_name(version: str, parser):
+    args = parser.parse_args([
+        "report",
+        "--project-name",
+        __project_name,
+        "--project-version",
+        version,
+    ])
+    args.func(args)
+
 @pytest.mark.depends(on=['test_upload_by_name'])
 @pytest.mark.parametrize("version", [__uuid_version])
 def test_upload_by_uuid(version: str, client: Client, parser):
