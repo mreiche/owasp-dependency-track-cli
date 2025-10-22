@@ -7,12 +7,12 @@ from tinystream import Stream
 
 from owasp_dt_cli.api import create_client_from_env, find_project_by_name
 
-cwd = Path(__file__)
+__base_dir = Path(__file__).parent
 
 test_project_name = "test-api"
 
 def setup_module():
-    assert load_dotenv(cwd.parent / "test.env")
+    assert load_dotenv(__base_dir / "test.env")
 
 def teardown_module():
     client = create_client_from_env()

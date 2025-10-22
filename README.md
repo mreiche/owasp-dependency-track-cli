@@ -64,6 +64,8 @@ CVSS_V2_THRESHOLD="-1"                    # Threshold for cumulated CVSS V2
 ANALYZE_TIMEOUT_SEC="300"                 # Timeout for analyzation in seconds
 PROJECT_TIMEOUT_SEC="20"                  # Timeout for searching the project by name in seconds
 HTTPS_PROXY=""                            # URL for HTTP(S) proxy
+LOG_LEVEL="info"                          # Logging verbosity (optional)
+HTTPX_LOG_LEVEL="warning"                 # Log level of the httpx framework (optional)
 ```
 
 ## API-Key

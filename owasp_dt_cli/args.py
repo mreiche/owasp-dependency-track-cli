@@ -39,6 +39,7 @@ def create_parser():
         description="OWASP Dependency Track CLI",
         exit_on_error=False
     )
+    parser.add_argument("--env", help="Environment file to load", type=pathlib.Path, default=None)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     test = subparsers.add_parser("test", help="Uploads and analyzes a SBOM.")

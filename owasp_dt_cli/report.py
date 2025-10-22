@@ -45,8 +45,7 @@ def format_violation_state(state: str):
 def format_component_version(component: FindingComponent|Component):
     version = component.version
     if isinstance(component, FindingComponent):
-        if component.latest_version:
-            version += f" ({component.latest_version})"
+        version += f" ({component.latest_version if component.latest_version else "?"})"
 
     return version
 
