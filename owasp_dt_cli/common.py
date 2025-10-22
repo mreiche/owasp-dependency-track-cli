@@ -7,7 +7,7 @@ from typing import Callable
 from owasp_dt_cli import log
 
 
-def retry(callable: Callable, seconds: float, wait_time: float = 2):
+def retry(callable: Callable, seconds: float, wait_time: float = 3):
     retries = math.ceil(seconds / wait_time)
     #start_date = datetime.now()
     exception = None
