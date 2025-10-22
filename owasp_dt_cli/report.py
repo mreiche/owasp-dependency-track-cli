@@ -1,5 +1,5 @@
 from colorama import Fore, Style, init
-from owasp_dt.models import PolicyViolation, Component, FindingComponent, Finding
+from owasp_dt.models import PolicyViolation, Component, FindingComponent, Finding, FindingVulnerability
 from tabulate import tabulate
 
 init(autoreset=True)
@@ -57,12 +57,18 @@ def format_component_identifier(component: FindingComponent|Component):
 
     return name
 
+def format_scoring(vulnerability: FindingVulnerability):
+    scores = []
+    scores.append(str(vulnerability.cvss_v3_base_score) if vulnerability.cvss_v3_base_score else "?")
+    scores.append(str(vulnerability.cvss_v2_base_score) if vulnerability.cvss_v2_base_score else "?")
+    return f"{format_severity(vulnerability.severity)} ({', '.join(scores)})"
+
 def print_findings_table(findings: list[Finding]):
     headers = [
         "Component",
         "Version (latest)",
         "Vulnerability",
-        "Severity"
+        "Severity (CVSS3, CVSS2)"
     ]
     data = []
     for finding in findings:
@@ -70,7 +76,7 @@ def print_findings_table(findings: list[Finding]):
             format_component_identifier(finding.component),
             format_component_version(finding.component),
             f'{finding.vulnerability.vuln_id} ({shorten(finding.vulnerability.description)})',
-            format_severity(finding.vulnerability.severity),
+            format_scoring(finding.vulnerability),
         ])
     if len(data) > 0:
         print("FINDINGS")
