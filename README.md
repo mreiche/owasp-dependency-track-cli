@@ -36,9 +36,10 @@ podman|docker \
 
 ## Commands
 
+- `test`: Uploads a SBOM, analyzes and reports the according project
 - `upload`: Uploads a SBOM only
-- `analyze`: Analyzes a project by creating a report
-- `test`: Uploads and analyzes a SBOM
+- `analyze`: Analyzes and reports a project
+- `report`: Creates a report only
 - `metrics prometheus`: Provides Prometheus metrics as `owasp_dtrack_cvss_score` and `owasp_dtrack_violations` Gauge series
 - `project upsert`: Upserts a project by file or JSON string
 
