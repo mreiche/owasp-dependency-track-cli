@@ -110,7 +110,7 @@ def test_get_vulnerability_metrics(client: owasp_dt.Client):
         vulnerabilities = resp.parsed
         assert len(vulnerabilities) > 0
 
-    retry(_get_vulnerability_metrics, 10)
+    common.retry(_get_vulnerability_metrics, 10)
 
 def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
     config = ConfigProperty(
