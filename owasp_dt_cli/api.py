@@ -2,7 +2,8 @@ from typing import Generator, Callable, TypeVar
 
 from owasp_dt import Client
 from owasp_dt.api.project import get_projects
-from owasp_dt.models import Project
+from owasp_dt.api.project_property import create_property_1, update_property
+from owasp_dt.models import Project, ProjectProperty
 from owasp_dt.types import Response
 from tinystream import Stream
 
@@ -53,6 +54,13 @@ def find_project_by_name(client: Client, name: str, version: str = None, latest:
             return opt_project.get()
 
     return None
+
+def upsert_project_property(client: Client, uuid: str, property: ProjectProperty):
+    resp = create_property_1.sync_detailed(client=client, uuid=uuid, body=property)
+    if resp.status_code == 409:
+        resp = update_property.sync_detailed(client=client, uuid=uuid, body=property)
+
+    assert resp.status_code in [200, 201]
 
 T = TypeVar('T')
 

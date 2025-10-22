@@ -3,12 +3,12 @@ from pathlib import Path
 
 from owasp_dt.api.project import create_project, get_projects, patch_project, delete_projects
 from is_empty import empty, not_empty
-from owasp_dt.models import Project
+from owasp_dt.api.project_property import create_property_1, update_property, delete_property_1
+from owasp_dt.models import Project, ProjectProperty, ProjectPropertyPropertyType
 from owasp_dt.types import Unset
 from tinystream import Opt
 
-from owasp_dt_cli import api
-from owasp_dt_cli.api import create_client_from_env
+from owasp_dt_cli import api, common
 
 def handle_project_upsert(args):
     file_defined = not empty(args.file)
@@ -27,44 +27,68 @@ def handle_project_upsert(args):
         except Exception as e:
             raise Exception(f"Error parsing JSON '{args.json}': {e}")
 
-    client = create_client_from_env()
+    client = api.create_client_from_env()
     opt_uuid = Opt(project_data).kmap("uuid").if_absent(args.project_uuid).filter(not_empty)
-    project = Project.from_dict(project_data)
+    project_patch = Project.from_dict(project_data)
 
     if not empty(args.project_uuid):
-        project.uuid = args.project_uuid
+        project_patch.uuid = args.project_uuid
 
     if not empty(args.project_name):
-        project.name = args.project_name
+        project_patch.name = args.project_name
 
     if not empty(args.project_version):
-        project.version = args.project_version
+        project_patch.version = args.project_version
 
     if args.latest:
-        project.is_latest = args.latest
+        project_patch.is_latest = args.latest
 
     if opt_uuid.present:
         project_uuid = opt_uuid.get()
-        resp = patch_project.sync_detailed(client=client, uuid=project_uuid, body=project)
+        resp = patch_project.sync_detailed(client=client, uuid=project_uuid, body=project_patch)
         assert resp.status_code in [304, 200, 201]
-        print(project_uuid)
     else:
-        assert not isinstance(project.name, Unset) and not empty(project.name), "At least a project name is required"
-        resp = create_project.sync_detailed(client=client, body=project)
+        assert not isinstance(project_patch.name, Unset) and not empty(project_patch.name), "At least a project name is required"
+        resp = create_project.sync_detailed(client=client, body=project_patch)
         if resp.status_code == 409:
-            existing_project = api.find_project_by_name(client=client, name=project.name, version=project.version, latest=project.is_latest)
+            existing_project = api.find_project_by_name(client=client, name=project_patch.name, version=project_patch.version, latest=project_patch.is_latest)
             assert isinstance(existing_project, Project), "The backend complains about project naming conflict, but the project does not exists, this should not happen"
-            resp = patch_project.sync_detailed(client=client, uuid=existing_project.uuid, body=project)
+            resp = patch_project.sync_detailed(client=client, uuid=existing_project.uuid, body=project_patch)
             assert resp.status_code in [304, 200, 201]
-            print(existing_project.uuid)
+            project_uuid = existing_project.uuid
         else:
             assert resp.status_code == 201, resp.content
             created_project = resp.parsed
-            print(created_project.uuid)
+            project_uuid = created_project.uuid
 
+    print(project_uuid)
+
+def handle_project_property_upsert(args):
+    common.assert_project_identity(args)
+    client = api.create_client_from_env()
+    common.assert_project_uuid(client=client, args=args)
+    property = ProjectProperty(
+        group_name=args.group_name,
+        property_name=args.property_name,
+        property_type=ProjectPropertyPropertyType[str(args.property_type).upper()],
+        property_value=args.property_value,
+    )
+    api.upsert_project_property(client=client, uuid=args.project_uuid, property=property)
+
+def handle_project_property_remove(args):
+    common.assert_project_identity(args)
+    client = api.create_client_from_env()
+    common.assert_project_uuid(client=client, args=args)
+    property = ProjectProperty(
+        group_name=args.group_name,
+        property_name=args.property_name,
+        property_type=ProjectPropertyPropertyType.STRING,
+        property_value="",
+    )
+    delete_property_1.sync_detailed(client=client, uuid=args.project_uuid, body=property)
 
 def handle_project_cleanup(args):
-    client = create_client_from_env()
+    client = api.create_client_from_env()
     def _loader(page_number: int):
         return get_projects.sync_detailed(
             client=client,

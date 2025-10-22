@@ -6,15 +6,13 @@ from owasp_dt.models import IsTokenBeingProcessedResponse
 
 from owasp_dt_cli import api, config, log, common
 from owasp_dt_cli.report import report_project, handle_thresholds
-from owasp_dt_cli.upload import assert_project_identity
 
 
 def handle_analyze(args):
-    assert_project_identity(args)
-
+    common.assert_project_identity(args)
     client = api.create_client_from_env()
-
     common.assert_project_uuid(client=client, args=args)
+
     resp = analyze_project.sync_detailed(client=client, uuid=args.project_uuid)
     assert resp.status_code in [200, 202], f"Project analyzation status unknown: {resp.parsed} (status code: {resp.status_code})"
 

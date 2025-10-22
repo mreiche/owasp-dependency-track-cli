@@ -4,11 +4,12 @@ from argparse import ArgumentParser
 
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
-from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup
+from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_upsert, handle_project_property_remove
 from owasp_dt_cli.report import handle_report
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
 
+__program_name = "owasp-dtrack-cli"
 
 def add_sbom_file(parser: ArgumentParser, default="sbom.json"):
     parser.add_argument("sbom", help="SBOM file path", type=pathlib.Path, default=default)
@@ -18,7 +19,7 @@ def add_upload_params(parser: ArgumentParser):
     parser.add_argument("--auto-create", help="Requires permission: PROJECT_CREATION_UPLOAD", action='store_true', default=False)
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
-    parser.add_argument("--keep-previous", help="Keep previous project versions enabled", action='store_true', default=False)
+    parser.add_argument("--keep-previous", help="Keep previous project versions active", action='store_true', default=False)
 
 def add_project_params(parser: ArgumentParser):
     add_project_name_params(parser)
@@ -35,8 +36,13 @@ def add_project_version_params(parser: ArgumentParser):
     parser.add_argument("--project-version", help="Project version", required=False)
     parser.add_argument("--latest", help="Project version is latest", action='store_true', default=False)
 
+def add_property_identifier_params(parser: ArgumentParser):
+    parser.add_argument("--property-name", help="Property name")
+    parser.add_argument("--group-name", help="Property group name", default=__program_name)
+
 def create_parser():
     parser = argparse.ArgumentParser(
+        prog=__program_name,
         description="OWASP Dependency Track CLI",
         exit_on_error=False
     )
@@ -48,7 +54,7 @@ def create_parser():
     add_upload_params(test)
     test.set_defaults(func=handle_test)
 
-    upload = subparsers.add_parser("upload", help="Uploads a SBOM only (requires permission: BOM_UPLOAD)")
+    upload = subparsers.add_parser("upload", help="Uploads a SBOM only as new active project version (requires permission: BOM_UPLOAD)")
     add_sbom_file(upload)
     add_upload_params(upload)
     upload.set_defaults(func=handle_upload)
@@ -76,6 +82,20 @@ def create_parser():
     upsert.add_argument("--json", help="Project JSON data as string", required=False)
     add_project_params(upsert)
     upsert.set_defaults(func=handle_project_upsert)
+
+    property = project_sub_parsers.add_parser("property", help="Project property management")
+    property_sub_parsers = property.add_subparsers(dest="type", required=True)
+    upsert = property_sub_parsers.add_parser("upsert", help="Creates or updates a project property")
+    upsert.add_argument("--property-value", help="Property value")
+    upsert.add_argument("--property-type", help="Property type", default="STRING")
+    add_property_identifier_params(upsert)
+    add_project_params(upsert)
+    upsert.set_defaults(func=handle_project_property_upsert)
+
+    remove = property_sub_parsers.add_parser("remove", help="Removes a property from a project")
+    add_property_identifier_params(remove)
+    add_project_params(remove)
+    remove.set_defaults(func=handle_project_property_remove)
 
     cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
     add_project_name_params(cleanup)

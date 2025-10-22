@@ -63,7 +63,50 @@ def test_patch_project_from_string(parser, capsys, client):
     opt_tag = Opt(project).map_key("tags").stream().filter_key_value("name", test_tag_name.lower()).next()
     assert opt_tag.present
 
-@pytest.mark.depends(on=["test_patch_project_from_string"])
+@pytest.mark.depends(on=["test_create_project_from_file"])
+def test_upsert_project_property(parser, capsys, client):
+    args = parser.parse_args([
+        "project",
+        "property",
+        "upsert",
+        "--project-uuid",
+        __project_uuid,
+        "--latest",
+        "--property-name",
+        "test_upsert_project_property",
+        "--property-value",
+        "success",
+    ])
+
+    args.func(args)
+    resp = get_project.sync_detailed(__project_uuid, client=client)
+    project = resp.parsed
+
+    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_upsert_project_property").next()
+    assert opt_property.present
+    assert opt_property.get().property_value == "success"
+
+@pytest.mark.depends(on=["test_upsert_project_property"])
+def test_remove_project_property(parser, capsys, client):
+    args = parser.parse_args([
+        "project",
+        "property",
+        "remove",
+        "--project-uuid",
+        __project_uuid,
+        "--latest",
+        "--property-name",
+        "test_upsert_project_property"
+    ])
+
+    args.func(args)
+    resp = get_project.sync_detailed(__project_uuid, client=client)
+    project = resp.parsed
+
+    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_upsert_project_property").next()
+    assert opt_property.absent
+
+@pytest.mark.depends(on=["test_remove_project_property"])
 def test_cleanup_inactive_project_versions(parser, client):
     args = parser.parse_args([
         "project",
