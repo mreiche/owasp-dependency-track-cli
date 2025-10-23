@@ -9,8 +9,28 @@ from owasp_dt.models import UploadBomBody, BomUploadResponse, Project, ProjectPr
 from tinystream import Stream, Opt
 
 from owasp_dt_cli import api, common, log, models
+from owasp_dt_cli.analyze import wait_for_token_processed
 from owasp_dt_cli.api import find_project_by_name
 
+
+def wait_for_project_clone(client: owasp_dt.Client, project: Project, args):
+    clone_request = CloneProjectRequest(
+        project=str(project.uuid),
+        version=args.project_version,
+        include_tags=True,
+        include_properties=True,
+        include_components=True,
+        include_dependencies=True,
+        include_acl=True,
+        include_services=True,
+        include_audit_history=True,
+        include_policy_violations=True,
+        make_clone_latest=args.latest,
+    )
+    resp = clone_project.sync_detailed(client=client, body=clone_request)
+    assert resp.status_code in [200, 201, 409]
+    upload = resp.parsed
+    wait_for_token_processed(client=client, token=upload.token)
 
 def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     sbom_file: Path = args.sbom
@@ -30,21 +50,7 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     elif args.auto_create:
         project = find_project_by_name(client=client, name=args.project_name)
         if project and project.version != args.project_version:
-            clone_request = CloneProjectRequest(
-                project=str(project.uuid),
-                version=args.project_version,
-                include_tags=True,
-                include_properties=True,
-                include_components=True,
-                include_dependencies=True,
-                include_acl=True,
-                include_services=True,
-                include_audit_history=True,
-                include_policy_violations=True,
-                make_clone_latest=args.latest,
-            )
-            resp = clone_project.sync_detailed(client=client, body=clone_request)
-            assert resp.status_code in [200, 201, 409]
+            wait_for_project_clone(client=client, project=project, args=args)
 
     if args.project_name:
         sbom_upload.project_name = args.project_name

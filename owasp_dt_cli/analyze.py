@@ -19,12 +19,12 @@ def handle_analyze(args):
     bom_upload = resp.parsed
     assert isinstance(bom_upload, BomUploadResponse), f"Unexpected response: {bom_upload}"
 
-    wait_for_analyzation(client=client, token=bom_upload.token)
+    wait_for_token_processed(client=client, token=bom_upload.token)
     findings, violations = report_project(client=client, uuid=args.project_uuid)
     handle_thresholds(findings, violations)
 
 
-def wait_for_analyzation(client: Client, token: str) -> IsTokenBeingProcessedResponse:
+def wait_for_token_processed(client: Client, token: str) -> IsTokenBeingProcessedResponse:
     def _read_process_status():
         log.LOGGER.info(f"Waiting for token '{token}' being processed...")
         resp = is_token_being_processed_1.sync_detailed(client=client, uuid=token)
