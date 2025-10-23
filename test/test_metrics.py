@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.depends(on=["test/test_test.py::test_test"])
+@pytest.mark.depends(on=["test/test_upload_analyze_report.py::test_report_by_name"])
 def test_prometheus(capsys, parser):
     args = parser.parse_args([
         "metrics",
