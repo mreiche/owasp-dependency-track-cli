@@ -2,8 +2,6 @@ import argparse
 import pathlib
 from argparse import ArgumentParser
 
-from markdown.util import deprecated
-
 from owasp_dt_cli import models, config
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
@@ -11,6 +9,7 @@ from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, 
 from owasp_dt_cli.report import handle_report
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
+
 
 def add_sbom_file(parser: ArgumentParser, default="sbom.json"):
     parser.add_argument("sbom", help="SBOM file path", type=pathlib.Path, default=default)
