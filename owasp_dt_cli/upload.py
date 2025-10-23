@@ -6,8 +6,7 @@ from owasp_dt.api.bom import upload_bom
 from owasp_dt.api.project import get_projects, patch_project, get_project
 from owasp_dt.models import UploadBomBody, BomUploadResponse, Project
 
-from owasp_dt_cli import api, common
-from owasp_dt_cli.log import LOGGER
+from owasp_dt_cli import api, common, log
 
 def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     sbom_file: Path = args.sbom
@@ -43,6 +42,7 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     assert isinstance(upload, BomUploadResponse), upload
 
     if args.keep_previous is False:
+        log.LOGGER.info(f"Deactivate other versions of {args.project_name}")
         if empty(args.project_name):
             resp = get_project.sync_detailed(client=client, uuid=args.project_uuid)
             assert resp.status_code in [200]
@@ -61,7 +61,7 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
                 if project.version != args.project_version and project.active:
                     resp = patch_project.sync_detailed(client=client, uuid=project.uuid, body=Project(active=False))
                     if resp.status_code not in (200, ):
-                        LOGGER.error(f"Unable to patch project '{project.uuid}'")
+                        log.LOGGER.error(f"Unable to patch project '{project.uuid}'")
 
 
     return upload, client

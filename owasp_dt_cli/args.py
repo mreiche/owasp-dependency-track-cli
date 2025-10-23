@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
-from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_upsert, handle_project_property_remove
+from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_remove
 from owasp_dt_cli.report import handle_report
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
@@ -83,19 +83,29 @@ def create_parser():
     add_project_params(upsert)
     upsert.set_defaults(func=handle_project_upsert)
 
-    property = project_sub_parsers.add_parser("property", help="Project property management")
-    property_sub_parsers = property.add_subparsers(dest="type", required=True)
-    upsert = property_sub_parsers.add_parser("upsert", help="Creates or updates a project property")
-    upsert.add_argument("--property-value", help="Property value")
-    upsert.add_argument("--property-type", help="Property type", default="STRING")
-    add_property_identifier_params(upsert)
-    add_project_params(upsert)
-    upsert.set_defaults(func=handle_project_property_upsert)
+    remove_property = project_sub_parsers.add_parser("remove-property", help="Removes a property from a project")
+    add_property_identifier_params(remove_property)
+    add_project_params(remove_property)
+    remove_property.set_defaults(func=handle_project_property_remove)
 
-    remove = property_sub_parsers.add_parser("remove", help="Removes a property from a project")
-    add_property_identifier_params(remove)
-    add_project_params(remove)
-    remove.set_defaults(func=handle_project_property_remove)
+    activate = project_sub_parsers.add_parser("activate", help="Activates a project and sets the 'keepActive' property")
+    add_project_params(activate)
+    deactivate = project_sub_parsers.add_parser("deactivate", help="Deactivates a project and removes the 'keepActive' property")
+    add_project_params(deactivate)
+
+    # property = project_sub_parsers.add_parser("property", help="Project property management")
+    # property_sub_parsers = property.add_subparsers(dest="type", required=True)
+    # upsert = property_sub_parsers.add_parser("upsert", help="Creates or updates a project property")
+    # upsert.add_argument("--property-value", help="Property value")
+    # upsert.add_argument("--property-type", help="Property type", default="STRING")
+    # add_property_identifier_params(upsert)
+    # add_project_params(upsert)
+    # upsert.set_defaults(func=handle_project_property_upsert)
+
+    # remove = property_sub_parsers.add_parser("remove", help="Removes a property from a project")
+    # add_property_identifier_params(remove)
+    # add_project_params(remove)
+    # remove.set_defaults(func=handle_project_property_remove)
 
     cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
     add_project_name_params(cleanup)

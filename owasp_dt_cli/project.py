@@ -6,9 +6,18 @@ from is_empty import empty, not_empty
 from owasp_dt.api.project_property import create_property_1, update_property, delete_property_1
 from owasp_dt.models import Project, ProjectProperty, ProjectPropertyPropertyType
 from owasp_dt.types import Unset
-from tinystream import Opt
+from tinystream import Opt, Stream
 
-from owasp_dt_cli import api, common
+from owasp_dt_cli import api, common, log
+
+def create_project_patches_from_project_data(project_data: dict) -> tuple[Project, list[ProjectProperty]]:
+    if "properties" in project_data:
+        properties:list[ProjectProperty] = Stream(project_data["properties"]).map(ProjectProperty.from_dict).collect()
+        del project_data["properties"]
+    else:
+        properties = []
+
+    return Project.from_dict(project_data), properties
 
 def handle_project_upsert(args):
     file_defined = not empty(args.file)
@@ -29,7 +38,7 @@ def handle_project_upsert(args):
 
     client = api.create_client_from_env()
     opt_uuid = Opt(project_data).kmap("uuid").if_absent(args.project_uuid).filter(not_empty)
-    project_patch = Project.from_dict(project_data)
+    project_patch, properties = create_project_patches_from_project_data(project_data)
 
     if not empty(args.project_uuid):
         project_patch.uuid = args.project_uuid
@@ -46,7 +55,7 @@ def handle_project_upsert(args):
     if opt_uuid.present:
         project_uuid = opt_uuid.get()
         resp = patch_project.sync_detailed(client=client, uuid=project_uuid, body=project_patch)
-        assert resp.status_code in [304, 200, 201]
+        assert resp.status_code in [304, 200, 201], resp.content
     else:
         assert not isinstance(project_patch.name, Unset) and not empty(project_patch.name), "At least a project name is required"
         resp = create_project.sync_detailed(client=client, body=project_patch)
@@ -61,19 +70,21 @@ def handle_project_upsert(args):
             created_project = resp.parsed
             project_uuid = created_project.uuid
 
+    if len(properties) > 0:
+        log.LOGGER.info("Update project properties")
+        for property in properties:
+            api.upsert_project_property(client=client, uuid=project_uuid, property=property)
+
     print(project_uuid)
 
-def handle_project_property_upsert(args):
+def handle_project_activate(args):
     common.assert_project_identity(args)
     client = api.create_client_from_env()
     common.assert_project_uuid(client=client, args=args)
-    property = ProjectProperty(
-        group_name=args.group_name,
-        property_name=args.property_name,
-        property_type=ProjectPropertyPropertyType[str(args.property_type).upper()],
-        property_value=args.property_value,
-    )
-    api.upsert_project_property(client=client, uuid=args.project_uuid, property=property)
+
+
+def handle_project_deactivate(args):
+    pass
 
 def handle_project_property_remove(args):
     common.assert_project_identity(args)

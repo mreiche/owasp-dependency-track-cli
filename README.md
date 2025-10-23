@@ -42,6 +42,9 @@ podman|docker \
 - `report`: Creates a report only
 - `metrics prometheus`: Provides Prometheus metrics as `owasp_dtrack_cvss_score` and `owasp_dtrack_violations` Gauge series
 - `project upsert`: Upserts a project by file or JSON string
+- `project remove-property`: Removes a property from a project
+- `project activate`: Activates a project and adds the `keepActive` property
+- `project deactivate`: Deactivates a project and removes the `keepActive` property
 
 ### Examples
 
@@ -52,6 +55,15 @@ owasp-dtrack-cli test --auto-create /path/to/sbom.json
 owasp-dtrack-cli metrics prometheus --serve
 owasp-dtrack-cli project upsert --json '{ "name": "My project" }'
 ```
+
+### About patching a project
+Every patch activates the project, to keep it deactivated, pass
+```json
+{
+  "active": false
+}
+```
+to your patch
 
 ## Environment variables
 ```shell
