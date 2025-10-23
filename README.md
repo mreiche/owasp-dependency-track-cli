@@ -42,6 +42,9 @@ podman|docker \
 - `report`: Creates a report only
 - `metrics prometheus`: Provides Prometheus metrics as `owasp_dtrack_cvss_score` and `owasp_dtrack_violations` Gauge series
 - `project upsert`: Upserts a project by file or JSON string
+- `project remove-property`: Removes a property from a project
+- `project activate`: Activates a project and adds the `keepActive` property
+- `project deactivate`: Deactivates a project and removes the `keepActive` property
 
 ### Examples
 
@@ -81,6 +84,24 @@ Setup a user with API key and the following permissions:
    - VIEW_VULNERABILITY
    - VIEW_POLICY_VIOLATION
    - PORTFOLIO_MANAGEMENT (for modifying projects)
+
+## How it works
+
+Explanation of implementation behaviour.
+
+### About patching a project
+Every patch activates the project, to keep it deactivated, add to your patch:
+```json
+{ "active": false }
+```
+or use the `project deactivate` command afterwards.
+
+### Uploading new project versions
+The `upload` and `test` commands behave like the following:
+- If the `--auto-create` feature is enabled, a new `--project-version` is provided and a previous uploaded version exists, it will be cloned as new version including all properties, components and audits.
+- All other project versions without `keepActive` property will be deactivated unless `--deactivate-others` is set to `false`
+- If `--latest` is set, this new project version will be marked as *Latest*
+- You can patch this property, add it manually or use the `project activate` command
 
 ## Testing
 

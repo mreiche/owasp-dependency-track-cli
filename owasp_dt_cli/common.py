@@ -59,3 +59,6 @@ def assert_project_uuid(client: Client, args):
     if empty(args.project_uuid):
         project = retry(_find_project, int(os.getenv("PROJECT_TIMEOUT_SEC", "20")))
         args.project_uuid = project.uuid
+
+def assert_project_identity(args):
+    assert not empty(args.project_uuid) or not empty(args.project_name), "At least a project UUID or a project name is required"

@@ -2,9 +2,10 @@ import argparse
 import pathlib
 from argparse import ArgumentParser
 
+from owasp_dt_cli import models, config
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
-from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup
+from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_remove, handle_project_activate, handle_project_deactivate
 from owasp_dt_cli.report import handle_report
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
@@ -18,7 +19,7 @@ def add_upload_params(parser: ArgumentParser):
     parser.add_argument("--auto-create", help="Requires permission: PROJECT_CREATION_UPLOAD", action='store_true', default=False)
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
-    parser.add_argument("--keep-previous", help="Keep previous project versions enabled", action='store_true', default=False)
+    parser.add_argument("--deactivate-others", help="Deactivate other project versions without 'keepActive' property", type=config.parse_true, nargs='?', const=True, default=True)
 
 def add_project_params(parser: ArgumentParser):
     add_project_name_params(parser)
@@ -35,8 +36,13 @@ def add_project_version_params(parser: ArgumentParser):
     parser.add_argument("--project-version", help="Project version", required=False)
     parser.add_argument("--latest", help="Project version is latest", action='store_true', default=False)
 
+def add_property_identifier_params(parser: ArgumentParser):
+    parser.add_argument("--property-name", help="Property name")
+    parser.add_argument("--group-name", help="Property group name", default=models.program_name)
+
 def create_parser():
     parser = argparse.ArgumentParser(
+        prog=models.program_name,
         description="OWASP Dependency Track CLI",
         exit_on_error=False
     )
@@ -48,7 +54,7 @@ def create_parser():
     add_upload_params(test)
     test.set_defaults(func=handle_test)
 
-    upload = subparsers.add_parser("upload", help="Uploads a SBOM only (requires permission: BOM_UPLOAD)")
+    upload = subparsers.add_parser("upload", help="Uploads a SBOM only as new active project version (requires permission: BOM_UPLOAD)")
     add_sbom_file(upload)
     add_upload_params(upload)
     upload.set_defaults(func=handle_upload)
@@ -77,8 +83,21 @@ def create_parser():
     add_project_params(upsert)
     upsert.set_defaults(func=handle_project_upsert)
 
-    cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
-    add_project_name_params(cleanup)
-    cleanup.set_defaults(func=handle_project_cleanup)
+    remove_property = project_sub_parsers.add_parser("remove-property", help="Removes a property from a project")
+    add_property_identifier_params(remove_property)
+    add_project_params(remove_property)
+    remove_property.set_defaults(func=handle_project_property_remove)
+
+    activate_project = project_sub_parsers.add_parser("activate", help="Activates a project and sets the 'keepActive' property")
+    add_project_params(activate_project)
+    activate_project.set_defaults(func=handle_project_activate)
+
+    deactivate_project = project_sub_parsers.add_parser("deactivate", help="Deactivates a project and removes the 'keepActive' property")
+    add_project_params(deactivate_project)
+    deactivate_project.set_defaults(func=handle_project_deactivate)
+
+    delete_inactive = project_sub_parsers.add_parser("delete-inactive", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
+    add_project_name_params(delete_inactive)
+    delete_inactive.set_defaults(func=handle_project_cleanup)
 
     return parser

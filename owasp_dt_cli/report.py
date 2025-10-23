@@ -9,7 +9,6 @@ from owasp_dt.models import PolicyViolation
 from tabulate import tabulate
 
 from owasp_dt_cli import api, report, config, common
-from owasp_dt_cli.upload import assert_project_identity
 
 init(autoreset=True)
 
@@ -137,11 +136,10 @@ def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[Polic
 
 
 def handle_report(args):
-    assert_project_identity(args)
-
+    common.assert_project_identity(args)
     client = api.create_client_from_env()
-
     common.assert_project_uuid(client=client, args=args)
+
     findings, violations = report_project(client=client, uuid=args.project_uuid)
     handle_thresholds(findings, violations)
 
