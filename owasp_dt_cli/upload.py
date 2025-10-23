@@ -25,9 +25,6 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
         bom=sbom_file.read_text()
     )
 
-    if args.keep_previous:
-        args.deactivate_others = False
-
     if args.project_uuid:
         sbom_upload.project = args.project_uuid
     elif args.auto_create:
