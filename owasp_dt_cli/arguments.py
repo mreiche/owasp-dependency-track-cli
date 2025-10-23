@@ -18,7 +18,7 @@ def add_upload_params(parser: ArgumentParser):
     parser.add_argument("--auto-create", help="Requires permission: PROJECT_CREATION_UPLOAD", action='store_true', default=False)
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
-    parser.add_argument("--keep-previous", help="Keep previous project versions active", action='store_true', default=False)
+    parser.add_argument("--deactivate-others", help="Deactivate other project versions without 'keepActive' property", action='store_true', default=True)
 
 def add_project_params(parser: ArgumentParser):
     add_project_name_params(parser)
