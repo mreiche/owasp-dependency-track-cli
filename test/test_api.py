@@ -14,11 +14,10 @@ from owasp_dt.api.metrics import get_project_current_metrics
 from owasp_dt.api.metrics import get_vulnerability_metrics
 from owasp_dt.api.policy import create_policy
 from owasp_dt.api.policy_condition import create_policy_condition
-from owasp_dt.api.project import get_projects, patch_project, get_project
-from owasp_dt.api.project_property import create_property_1
+from owasp_dt.api.project import get_projects, get_project
 from owasp_dt.api.violation import get_violations_by_project, get_violations
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
-from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType, Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, PolicyConditionOperator, License, Project, ProjectProperty, ProjectPropertyPropertyType
+from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType, Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, PolicyConditionOperator, License, ProjectProperty, ProjectPropertyPropertyType
 from owasp_dt.types import UNSET
 from tinystream import Opt
 
@@ -29,6 +28,7 @@ __base_dir = Path(__file__).parent
 __upload_token: str | None = None
 __project_uuid: str | None = None
 __mit_license_uuid: str | None = None
+
 
 def test_upload_sbom(client: owasp_dt.Client):
     global __upload_token
@@ -58,6 +58,7 @@ def test_get_scan_status(client: owasp_dt.Client):
 
     assert i < max_tries, f"Scan not finished within {max_tries} seconds"
 
+
 @pytest.mark.depends(on=['test_upload_sbom'])
 def test_upsert_project_property(client: owasp_dt.Client):
     project = api.find_project_by_name(client=client, name=test_project_name)
@@ -72,7 +73,7 @@ def test_upsert_project_property(client: owasp_dt.Client):
 
     resp = get_project.sync_detailed(client=client, uuid=project.uuid)
     project = resp.parsed
-    opt_property = Opt(project).map_key("properties").stream().filter(lambda p: p.property_name=="test").type(ProjectProperty).next()
+    opt_property = Opt(project).map_key("properties").stream().filter(lambda p: p.property_name == "test").type(ProjectProperty).next()
     assert opt_property.present
     assert opt_property.get().property_value == "set"
 
@@ -80,9 +81,10 @@ def test_upsert_project_property(client: owasp_dt.Client):
     api.upsert_project_property(client=client, uuid=project.uuid, property=property)
     resp = get_project.sync_detailed(client=client, uuid=project.uuid)
     project = resp.parsed
-    opt_property = Opt(project).map_key("properties").stream().filter(lambda p: p.property_name=="test").type(ProjectProperty).next()
+    opt_property = Opt(project).map_key("properties").stream().filter(lambda p: p.property_name == "test").type(ProjectProperty).next()
     assert opt_property.present
     assert opt_property.get().property_value == "new_value"
+
 
 @pytest.mark.depends(on=['test_upload_sbom'])
 def test_search_project_by_name(client: owasp_dt.Client):
@@ -105,7 +107,7 @@ def test_get_project_findings(client: owasp_dt.Client):
     assert len(findings) > 0
 
 
-#@pytest.mark.xfail(reason="Metrics not available on fresh installations")
+# @pytest.mark.xfail(reason="Metrics not available on fresh installations")
 @pytest.mark.depends(on=['test_search_project_by_name', 'test_get_scan_status'])
 def test_get_project_metrics(client: owasp_dt.Client):
     resp = get_project_current_metrics.sync_detailed(client=client, uuid=__project_uuid)
@@ -118,7 +120,7 @@ def test_get_project_violations(client: owasp_dt.Client):
     violations = resp.parsed
 
 
-#@pytest.mark.xfail(reason="Metrics not available on fresh installations")
+# @pytest.mark.xfail(reason="Metrics not available on fresh installations")
 @pytest.mark.depends(on=['test_trigger_vulnerabilities_update'])
 def test_get_vulnerabilities(client: owasp_dt.Client):
     def _get_vulnerabilities():
@@ -138,6 +140,7 @@ def test_get_vulnerability_metrics(client: owasp_dt.Client):
         assert len(vulnerabilities) > 0
 
     common.retry(_get_vulnerability_metrics, 10)
+
 
 def test_trigger_vulnerabilities_update(client: owasp_dt.Client):
     config = ConfigProperty(

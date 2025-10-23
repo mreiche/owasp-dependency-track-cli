@@ -24,10 +24,8 @@ def test_upload_by_name(version: str, parser):
         "--auto-create",
         "--project-version",
         version,
-        "--keep-previous",
         str(__base_dir / "files/test.sbom.xml"),
     ])
-
     args.func(args)
 
 

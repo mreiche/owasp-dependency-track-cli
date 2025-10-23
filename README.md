@@ -56,15 +56,6 @@ owasp-dtrack-cli metrics prometheus --serve
 owasp-dtrack-cli project upsert --json '{ "name": "My project" }'
 ```
 
-### About patching a project
-Every patch activates the project, to keep it deactivated, pass
-```json
-{
-  "active": false
-}
-```
-to your patch
-
 ## Environment variables
 ```shell
 OWASP_DTRACK_URL="http://localhost:8081"  # Base-URL to OWASP Dependency Track
@@ -93,6 +84,24 @@ Setup a user with API key and the following permissions:
    - VIEW_VULNERABILITY
    - VIEW_POLICY_VIOLATION
    - PORTFOLIO_MANAGEMENT (for modifying projects)
+
+## How it works
+
+Explanation of implementation behaviour.
+
+### About patching a project
+Every patch activates the project, to keep it deactivated, add to your patch:
+```json
+{ "active": false }
+```
+or use the `project deactivate` command afterwards.
+
+### Uploading new project versions
+The `upload` and `test` commands behave like the following:
+- If the `--auto-create` feature is enabled, a new `--project-version` is provided and a previous uploaded version exists, it will be cloned as new version including all properties, components and audits.
+- All other project versions without `keepActive` property will be deactivated unless `--deactivate-others` is set to `false`
+- If `--latest` is set, this new project version will be marked as *Latest*
+- You can patch this property, add it manually or use the `project activate` command
 
 ## Testing
 

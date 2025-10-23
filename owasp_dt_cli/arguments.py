@@ -2,7 +2,9 @@ import argparse
 import pathlib
 from argparse import ArgumentParser
 
-from owasp_dt_cli import models
+from markdown.util import deprecated
+
+from owasp_dt_cli import models, config
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
 from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_remove, handle_project_activate, handle_project_deactivate
@@ -18,7 +20,8 @@ def add_upload_params(parser: ArgumentParser):
     parser.add_argument("--auto-create", help="Requires permission: PROJECT_CREATION_UPLOAD", action='store_true', default=False)
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
-    parser.add_argument("--deactivate-others", help="Deactivate other project versions without 'keepActive' property", action='store_true', default=True)
+    parser.add_argument("--keep-previous", help="Keep other project versions active (deprecated, use '--deactivate-others false' instead)", action='store_true', default=False, deprecated=True)
+    parser.add_argument("--deactivate-others", help="Deactivate other project versions without 'keepActive' property", type=config.parse_true, nargs='?', const=True, default=True)
 
 def add_project_params(parser: ArgumentParser):
     add_project_name_params(parser)

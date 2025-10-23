@@ -172,10 +172,10 @@ def test_deactivate_project(parser, client):
 
 
 @pytest.mark.depends(on=["test_deactivate_project"])
-def test_cleanup_inactive_project_versions(parser, client):
+def test_delete_inactive_project_versions(parser, client):
     args = parser.parse_args([
         "project",
-        "cleanup",
+        "delete-inactive",
         "--project-name",
         "upsert-project",  # must match name from project.json
     ])

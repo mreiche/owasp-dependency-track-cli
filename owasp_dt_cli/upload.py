@@ -4,11 +4,12 @@ import owasp_dt
 from is_empty import empty
 from owasp_dt import Client
 from owasp_dt.api.bom import upload_bom
-from owasp_dt.api.project import get_projects, patch_project, get_project
-from owasp_dt.models import UploadBomBody, BomUploadResponse, Project, ProjectProperty
+from owasp_dt.api.project import get_projects, patch_project, get_project, clone_project
+from owasp_dt.models import UploadBomBody, BomUploadResponse, Project, ProjectProperty, CloneProjectRequest
 from tinystream import Stream, Opt
 
 from owasp_dt_cli import api, common, log, models
+from owasp_dt_cli.api import find_project_by_name
 
 
 def handle_upload(args) -> tuple[BomUploadResponse, Client]:
@@ -16,29 +17,51 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     assert sbom_file.exists(), f"{sbom_file} doesn't exists"
 
     common.assert_project_identity(args)
-
     client = api.create_client_from_env()
-    body = UploadBomBody(
+
+    sbom_upload = UploadBomBody(
         is_latest=args.latest,
         auto_create=args.auto_create,
         bom=sbom_file.read_text()
     )
+
+    if args.keep_previous:
+        args.deactivate_others = False
+
     if args.project_uuid:
-        body.project = args.project_uuid
+        sbom_upload.project = args.project_uuid
+    elif args.auto_create:
+        project = find_project_by_name(client=client, name=args.project_name)
+        if project and project.version != args.project_version:
+            clone_request = CloneProjectRequest(
+                project=str(project.uuid),
+                version=args.project_version,
+                include_tags=True,
+                include_properties=True,
+                include_components=True,
+                include_dependencies=True,
+                include_acl=True,
+                include_services=True,
+                include_audit_history=True,
+                include_policy_violations=True,
+                make_clone_latest=args.latest,
+            )
+            resp = clone_project.sync_detailed(client=client, body=clone_request)
+            assert resp.status_code in [200, 201, 409]
 
     if args.project_name:
-        body.project_name = args.project_name
+        sbom_upload.project_name = args.project_name
 
     if args.parent_uuid:
-        body.parent_uuid = args.parent_uuid
+        sbom_upload.parent_uuid = args.parent_uuid
 
     if args.parent_name:
-        body.parent_name = args.parent_name
+        sbom_upload.parent_name = args.parent_name
 
     if args.project_version:
-        body.project_version = args.project_version
+        sbom_upload.project_version = args.project_version
 
-    resp = upload_bom.sync_detailed(client=client, body=body)
+    resp = upload_bom.sync_detailed(client=client, body=sbom_upload)
     assert resp.status_code != 404, f"Project not found: {args.project_name}:{args.project_version} (you may missing --auto-create)"
 
     upload = resp.parsed
