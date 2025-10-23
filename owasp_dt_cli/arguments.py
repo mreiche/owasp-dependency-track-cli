@@ -2,14 +2,13 @@ import argparse
 import pathlib
 from argparse import ArgumentParser
 
+from owasp_dt_cli import models
 from owasp_dt_cli.analyze import handle_analyze
 from owasp_dt_cli.metrics import handle_prometheus_metrics
-from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_remove
+from owasp_dt_cli.project import handle_project_upsert, handle_project_cleanup, handle_project_property_remove, handle_project_activate, handle_project_deactivate
 from owasp_dt_cli.report import handle_report
 from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
-
-__program_name = "owasp-dtrack-cli"
 
 def add_sbom_file(parser: ArgumentParser, default="sbom.json"):
     parser.add_argument("sbom", help="SBOM file path", type=pathlib.Path, default=default)
@@ -38,11 +37,11 @@ def add_project_version_params(parser: ArgumentParser):
 
 def add_property_identifier_params(parser: ArgumentParser):
     parser.add_argument("--property-name", help="Property name")
-    parser.add_argument("--group-name", help="Property group name", default=__program_name)
+    parser.add_argument("--group-name", help="Property group name", default=models.program_name)
 
 def create_parser():
     parser = argparse.ArgumentParser(
-        prog=__program_name,
+        prog=models.program_name,
         description="OWASP Dependency Track CLI",
         exit_on_error=False
     )
@@ -88,27 +87,16 @@ def create_parser():
     add_project_params(remove_property)
     remove_property.set_defaults(func=handle_project_property_remove)
 
-    activate = project_sub_parsers.add_parser("activate", help="Activates a project and sets the 'keepActive' property")
-    add_project_params(activate)
-    deactivate = project_sub_parsers.add_parser("deactivate", help="Deactivates a project and removes the 'keepActive' property")
-    add_project_params(deactivate)
+    activate_project = project_sub_parsers.add_parser("activate", help="Activates a project and sets the 'keepActive' property")
+    add_project_params(activate_project)
+    activate_project.set_defaults(func=handle_project_activate)
 
-    # property = project_sub_parsers.add_parser("property", help="Project property management")
-    # property_sub_parsers = property.add_subparsers(dest="type", required=True)
-    # upsert = property_sub_parsers.add_parser("upsert", help="Creates or updates a project property")
-    # upsert.add_argument("--property-value", help="Property value")
-    # upsert.add_argument("--property-type", help="Property type", default="STRING")
-    # add_property_identifier_params(upsert)
-    # add_project_params(upsert)
-    # upsert.set_defaults(func=handle_project_property_upsert)
+    deactivate_project = project_sub_parsers.add_parser("deactivate", help="Deactivates a project and removes the 'keepActive' property")
+    add_project_params(deactivate_project)
+    deactivate_project.set_defaults(func=handle_project_deactivate)
 
-    # remove = property_sub_parsers.add_parser("remove", help="Removes a property from a project")
-    # add_property_identifier_params(remove)
-    # add_project_params(remove)
-    # remove.set_defaults(func=handle_project_property_remove)
-
-    cleanup = project_sub_parsers.add_parser("cleanup", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
-    add_project_name_params(cleanup)
-    cleanup.set_defaults(func=handle_project_cleanup)
+    delete_inactive = project_sub_parsers.add_parser("delete-inactive", help="Deletes inactive projects. Requires permission: PORTFOLIO_MANAGEMENT")
+    add_project_name_params(delete_inactive)
+    delete_inactive.set_defaults(func=handle_project_cleanup)
 
     return parser

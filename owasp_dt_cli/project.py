@@ -1,23 +1,25 @@
 import json
 from pathlib import Path
 
-from owasp_dt.api.project import create_project, get_projects, patch_project, delete_projects
 from is_empty import empty, not_empty
-from owasp_dt.api.project_property import create_property_1, update_property, delete_property_1
+from owasp_dt.api.project import create_project, get_projects, patch_project, delete_projects
+from owasp_dt.api.project_property import delete_property_1
 from owasp_dt.models import Project, ProjectProperty, ProjectPropertyPropertyType
 from owasp_dt.types import Unset
 from tinystream import Opt, Stream
 
-from owasp_dt_cli import api, common, log
+from owasp_dt_cli import api, common, log, models
+
 
 def create_project_patches_from_project_data(project_data: dict) -> tuple[Project, list[ProjectProperty]]:
     if "properties" in project_data:
-        properties:list[ProjectProperty] = Stream(project_data["properties"]).map(ProjectProperty.from_dict).collect()
+        properties: list[ProjectProperty] = Stream(project_data["properties"]).map(ProjectProperty.from_dict).collect()
         del project_data["properties"]
     else:
         properties = []
 
     return Project.from_dict(project_data), properties
+
 
 def handle_project_upsert(args):
     file_defined = not empty(args.file)
@@ -77,14 +79,28 @@ def handle_project_upsert(args):
 
     print(project_uuid)
 
+
 def handle_project_activate(args):
     common.assert_project_identity(args)
     client = api.create_client_from_env()
     common.assert_project_uuid(client=client, args=args)
 
+    project_patch = Project(active=True)
+    resp = patch_project.sync_detailed(client=client, uuid=args.project_uuid, body=project_patch)
+    assert resp.status_code in [304, 200, 201], resp.content
+    api.upsert_project_property(client=client, uuid=args.project_uuid, property=models.keep_active_property)
+
 
 def handle_project_deactivate(args):
-    pass
+    common.assert_project_identity(args)
+    client = api.create_client_from_env()
+    common.assert_project_uuid(client=client, args=args)
+
+    project_patch = Project(active=False)
+    resp = patch_project.sync_detailed(client=client, uuid=args.project_uuid, body=project_patch)
+    assert resp.status_code in [304, 200, 201], resp.content
+    delete_property_1.sync_detailed(client=client, uuid=args.project_uuid, body=models.keep_active_property)
+
 
 def handle_project_property_remove(args):
     common.assert_project_identity(args)
@@ -98,8 +114,10 @@ def handle_project_property_remove(args):
     )
     delete_property_1.sync_detailed(client=client, uuid=args.project_uuid, body=property)
 
+
 def handle_project_cleanup(args):
     client = api.create_client_from_env()
+
     def _loader(page_number: int):
         return get_projects.sync_detailed(
             client=client,
@@ -107,6 +125,7 @@ def handle_project_cleanup(args):
             page_number=page_number,
             page_size=1000
         )
+
     project_uuids_to_delete = []
     for projects in api.page_result(_loader):
         for project in projects:

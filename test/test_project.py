@@ -150,7 +150,7 @@ def test_activate_project(parser, client):
 
     opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "keepActive").next()
     assert opt_property.present
-    assert opt_property.get().property_value is True
+    assert opt_property.get().property_value == "true"
 
 
 @pytest.mark.depends(on=["test_activate_project"])
