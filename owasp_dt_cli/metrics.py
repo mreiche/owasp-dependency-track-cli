@@ -60,16 +60,9 @@ def update_finding_metrics(
             component = finding.component
             current_active_projects[component.project_name] = True
 
-            if vulnerability.cvss_v2_base_score and vulnerability.cvss_v2_base_score > 0:
-                instrument.labels(*[
-                    component.project_name,
-                    component.name,
-                    vulnerability.vuln_id,
-                    "v2",
-                    vulnerability.severity,
-                ]).set(vulnerability.cvss_v2_base_score)
 
-            if vulnerability.cvss_v3_base_score and vulnerability.cvss_v3_base_score >= 0:
+
+            if vulnerability.cvss_v3_base_score and vulnerability.cvss_v3_base_score > 0:
                 instrument.labels(*[
                     component.project_name,
                     component.name,
@@ -77,6 +70,22 @@ def update_finding_metrics(
                     "v3",
                     vulnerability.severity,
                 ]).set(vulnerability.cvss_v3_base_score)
+            elif vulnerability.cvss_v2_base_score and vulnerability.cvss_v2_base_score > 0:
+                instrument.labels(*[
+                    component.project_name,
+                    component.name,
+                    vulnerability.vuln_id,
+                    "v2",
+                    vulnerability.severity,
+                ]).set(vulnerability.cvss_v2_base_score)
+            else:
+                instrument.labels(*[
+                    component.project_name,
+                    component.name,
+                    vulnerability.vuln_id,
+                    "v3",
+                    vulnerability.severity,
+                ]).set(0.1)
     try:
         resp = get_all_findings_1.sync_detailed(
             client=client,
@@ -84,7 +93,8 @@ def update_finding_metrics(
             show_suppressed=False,
         )
         assert resp.status_code == 200
-        _add_findings(resp.parsed)
+        findings = resp.parsed
+        _add_findings(findings)
     except Exception as e:
         LOGGER.error(e)
 
