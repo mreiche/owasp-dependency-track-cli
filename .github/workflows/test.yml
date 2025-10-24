@@ -1,25 +1,10 @@
-name: Test and build
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+name: Test
 
 on:
   push:
     branches: [ "main" ]
-#    paths:
-#      - owasp_dt_cli/**
-#      - test/**
-#      - Dockerfile
-#      - requirements.txt
   pull_request:
     branches: [ "main" ]
-#    paths:
-#      - owasp_dt_cli/**
-#      - test/**
-#      - Dockerfile
-#      - requirements.txt
-#      - .github/**
   workflow_dispatch:
 
 permissions:
@@ -29,8 +14,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  test-and-build:
-    name: "Test and build"
+  test:
+    name: Test
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -74,8 +59,3 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           verbose: true
-
-      - uses: ./.github/actions/build-container
-        with:
-          user: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
