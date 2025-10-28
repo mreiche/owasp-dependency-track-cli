@@ -7,16 +7,8 @@ env:
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - "owasp_dt_cli/**"
-      - "Dockerfile"
-      - "pyproject.toml"
   pull_request:
     branches: [ "main" ]
-    paths:
-      - "owasp_dt_cli/**"
-      - "Dockerfile"
-      - "pyproject.toml"
   workflow_dispatch:
   release:
     types: [published]
@@ -28,10 +20,30 @@ permissions:
   pull-requests: write
 
 jobs:
+  determine_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.determine.outputs.source }}
+      container: ${{ steps.determine.outputs.container }}
+      test: ${{ steps.determine.outputs.test }}
+      project: ${{ steps.determine.outputs.project }}
+    steps:
+      - name: Run change detection
+        id: determine
+        uses: ./.github/actions/determine-changes
+#        with:
+#          base-ref: ${{ github.event.pull_request.base.ref }}
+#          head-ref: ${{ github.event.pull_request.head.ref }}
+
   build-oci-image:
     name: Build OCI image
     runs-on: ubuntu-latest
     permissions: write-all
+    if: |
+      github.event.pull_request.draft == false &&
+      needs.determine_changes.outputs.project == 'true' &&
+      needs.determine_changes.outputs.source == 'true' &&
+      needs.determine_changes.outputs.container == 'true'
     steps:
       - uses: actions/checkout@v4
 

@@ -3,16 +3,8 @@ name: Test
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - "owasp_dt_cli/**"
-      - "test/**"
-      - "pyproject.toml"
   pull_request:
     branches: [ "main" ]
-    paths:
-      - "owasp_dt_cli/**"
-      - "test/**"
-      - "pyproject.toml"
   workflow_dispatch:
 
 permissions:
@@ -22,10 +14,27 @@ permissions:
   pull-requests: write
 
 jobs:
+  determine_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.determine.outputs.source }}
+      container: ${{ steps.determine.outputs.container }}
+      test: ${{ steps.determine.outputs.test }}
+      project: ${{ steps.determine.outputs.project }}
+    steps:
+      - name: Run change detection
+        id: determine
+        uses: ./.github/actions/determine-changes
+
   test:
     name: Unit tests and coverage
     runs-on: ubuntu-latest
     permissions: write-all
+    if: |
+      github.event.pull_request.draft == false &&
+      needs.determine_changes.outputs.project == 'true' &&
+      needs.determine_changes.outputs.source == 'true' &&
+      needs.determine_changes.outputs.test == 'true'
     steps:
       - uses: actions/checkout@v4
 
