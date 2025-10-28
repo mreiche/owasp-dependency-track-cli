@@ -31,5 +31,4 @@ test = [
     "pytest>=7",
     "pytest-depends",
     "pytest-cov",
-    "dotenv",
 ]

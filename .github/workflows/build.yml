@@ -7,8 +7,16 @@ env:
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "owasp_dt_cli/**"
+      - "Dockerfile"
+      - "pyproject.toml"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - "owasp_dt_cli/**"
+      - "Dockerfile"
+      - "pyproject.toml"
   workflow_dispatch:
   release:
     types: [published]
@@ -21,7 +29,7 @@ permissions:
 
 jobs:
   build-oci-image:
-    name: "Build"
+    name: Build OCI image
     runs-on: ubuntu-latest
     permissions: write-all
     steps:

@@ -3,8 +3,16 @@ name: Test
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "owasp_dt_cli/**"
+      - "test/**"
+      - "pyproject.toml"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - "owasp_dt_cli/**"
+      - "test/**"
+      - "pyproject.toml"
   workflow_dispatch:
 
 permissions:
@@ -15,7 +23,7 @@ permissions:
 
 jobs:
   test:
-    name: Test
+    name: Unit tests and coverage
     runs-on: ubuntu-latest
     permissions: write-all
     steps:

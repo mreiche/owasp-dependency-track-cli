@@ -1,0 +1,10 @@
+name: Pull request dummy
+
+on:
+  pull_request:
+
+jobs:
+  base-check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Base PR validation done."
