@@ -28,6 +28,10 @@ jobs:
       test: ${{ steps.determine.outputs.test }}
       project: ${{ steps.determine.outputs.project }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Run change detection
         id: determine
         uses: ./.github/actions/determine-changes
