@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   determine_changes:
+    name: Determine changes
     runs-on: ubuntu-latest
     outputs:
       source: ${{ steps.determine.outputs.source }}
