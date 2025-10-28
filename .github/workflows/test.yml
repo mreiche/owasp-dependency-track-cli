@@ -14,10 +14,34 @@ permissions:
   pull-requests: write
 
 jobs:
+  determine_changes:
+    name: Determine changes
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.determine.outputs.source }}
+      container: ${{ steps.determine.outputs.container }}
+      test: ${{ steps.determine.outputs.test }}
+      project: ${{ steps.determine.outputs.project }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run change detection
+        id: determine
+        uses: ./.github/actions/determine-changes
+
   test:
-    name: Test
+    name: Unit tests and coverage
     runs-on: ubuntu-latest
     permissions: write-all
+    if: |
+      github.event.pull_request.draft == false
+      && (
+        needs.determine_changes.outputs.project == 'true'
+        || needs.determine_changes.outputs.source == 'true'
+        || needs.determine_changes.outputs.test == 'true'
+      )
     steps:
       - uses: actions/checkout@v4
 

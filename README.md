@@ -87,6 +87,21 @@ Setup a user with API key and the following permissions:
 
 ## How it works
 
+```mermaid
+sequenceDiagram
+    actor User
+   User->>CLI: Provide SBOM
+    CLI->>+OWASP DT: Clone project as new version
+    OWASP DT->>-CLI: New project version
+    CLI->>+OWASP DT: Upload and analyze SBOM
+    OWASP DT->>-CLI: Return findings
+    CLI->>OWASP DT: Deactivate older versions
+    CLI->>+CLI: Generate findings report
+    CLI->>+CLI: Analyze thresholds
+    CLI->>User: Print findings report
+    
+
+```
 Explanation of implementation behaviour.
 
 ### About patching a project

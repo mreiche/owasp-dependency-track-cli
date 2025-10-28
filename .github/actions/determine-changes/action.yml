@@ -1,0 +1,39 @@
+name: "Determine Changed Areas"
+description: "Detects changed paths and sets outputs for workflow decisions"
+#inputs:
+#  base-ref:
+#    description: "Base ref to compare against"
+#    required: true
+#  head-ref:
+#    description: "Head ref to compare against"
+#    required: true
+outputs:
+  source:
+    description: "Whether source changed"
+  container:
+    description: "Whether container changed"
+  project:
+    description: "Whether project changed"
+  tests:
+    description: "Whether tests changed"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Detect changes
+      id: filter
+      uses: dorny/paths-filter@v3
+      with:
+#        base: ${{ inputs.base-ref }}
+#        head: ${{ inputs.head-ref }}
+        filters: |
+          source:
+            - 'owasp_dt_cli/**'
+          container:
+            - 'Dockerfile'
+            - '.dockerignore'
+          test:
+            - 'test/**'
+          project:
+            - 'pyproject.toml'
+            - '.github/**'
