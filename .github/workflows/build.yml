@@ -44,10 +44,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     if: |
-      github.event.pull_request.draft == false &&
-      needs.determine_changes.outputs.project == 'true' &&
-      needs.determine_changes.outputs.source == 'true' &&
-      needs.determine_changes.outputs.container == 'true'
+      github.event.pull_request.draft == false
+      && (
+        needs.determine_changes.outputs.project == 'true'
+        || needs.determine_changes.outputs.source == 'true'
+        || needs.determine_changes.outputs.container == 'true'
+      )
     steps:
       - uses: actions/checkout@v4
 
