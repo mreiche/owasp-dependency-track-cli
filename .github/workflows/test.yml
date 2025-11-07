@@ -31,6 +31,16 @@ jobs:
         id: determine
         uses: ./.github/actions/determine-changes
 
+  debug:
+    needs: determine_changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show needs outputs
+        run: |
+          echo "project=${{ needs.determine_changes.outputs.project }}"
+          echo "source=${{ needs.determine_changes.outputs.source }}"
+          echo "test=${{ needs.determine_changes.outputs.test }}"
+
   test:
     name: Unit tests and coverage
     runs-on: ubuntu-latest
