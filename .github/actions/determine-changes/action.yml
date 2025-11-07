@@ -10,12 +10,16 @@ description: "Detects changed paths and sets outputs for workflow decisions"
 outputs:
   source:
     description: "Whether source changed"
+    value: ${{ steps.filter.outputs.source }}
   container:
     description: "Whether container changed"
+    value: ${{ steps.filter.outputs.container }}
   project:
     description: "Whether project changed"
+    value: ${{ steps.filter.outputs.project }}
   tests:
     description: "Whether tests changed"
+    value: ${{ steps.filter.outputs.test }}
 
 runs:
   using: "composite"
