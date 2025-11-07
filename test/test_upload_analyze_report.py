@@ -54,6 +54,9 @@ def test_report_by_name(version: str, parser):
     ])
     args.func(args)
 
+    captured = capsys.readouterr()
+    print(captured.out)
+
 @pytest.mark.depends(on=['test_upload_by_name'])
 @pytest.mark.parametrize("version", [__uuid_version])
 def test_upload_by_uuid(version: str, client: Client, parser):

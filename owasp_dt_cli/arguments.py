@@ -20,6 +20,7 @@ def add_upload_params(parser: ArgumentParser):
     parser.add_argument("--parent-uuid", help="Parent project UUID", required=False)
     parser.add_argument("--parent-name", help="Parent project name", required=False)
     parser.add_argument("--deactivate-others", help="Deactivate other project versions without 'keepActive' property", type=config.parse_true, nargs='?', const=True, default=True)
+    parser.add_argument("--skip-clone", help="Do not perform cloning the project before uploading", type=config.parse_true, nargs='?', const=True, default=False)
 
 def add_project_params(parser: ArgumentParser):
     add_project_name_params(parser)
