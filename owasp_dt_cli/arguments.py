@@ -11,7 +11,7 @@ from owasp_dt_cli.test import handle_test
 from owasp_dt_cli.upload import handle_upload
 
 
-def add_sbom_file(parser: ArgumentParser, default="sbom.json"):
+def add_sbom_file(parser: ArgumentParser, default="gatekeeper.json"):
     parser.add_argument("sbom", help="SBOM file path", type=pathlib.Path, default=default)
 
 def add_upload_params(parser: ArgumentParser):

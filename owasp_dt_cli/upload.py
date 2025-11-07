@@ -14,13 +14,14 @@ from owasp_dt_cli.api import find_project_by_name
 
 
 def wait_for_project_clone(client: owasp_dt.Client, project: Project, args):
+    log.LOGGER.info(f"Cloning project UUID {project.uuid} ({project.name}:{project.version})")
     clone_request = CloneProjectRequest(
         project=str(project.uuid),
         version=args.project_version,
         include_tags=True,
         include_properties=True,
         include_components=False,
-        include_dependencies=False,
+        include_dependencies=True,
         include_acl=True,
         include_services=True,
         include_audit_history=True,
