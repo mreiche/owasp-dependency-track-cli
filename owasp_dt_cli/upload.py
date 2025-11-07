@@ -19,8 +19,8 @@ def wait_for_project_clone(client: owasp_dt.Client, project: Project, args):
         version=args.project_version,
         include_tags=True,
         include_properties=True,
-        include_components=True,
-        include_dependencies=True,
+        include_components=False,
+        include_dependencies=False,
         include_acl=True,
         include_services=True,
         include_audit_history=True,
@@ -28,9 +28,12 @@ def wait_for_project_clone(client: owasp_dt.Client, project: Project, args):
         make_clone_latest=args.latest,
     )
     resp = clone_project.sync_detailed(client=client, body=clone_request)
-    assert resp.status_code in [200, 201, 409]
-    upload = resp.parsed
-    wait_for_token_processed(client=client, token=upload.token)
+    if resp.status_code == 409:
+        return
+    else:
+        assert resp.status_code in [200, 201]
+        upload = resp.parsed
+        wait_for_token_processed(client=client, token=upload.token)
 
 def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     sbom_file: Path = args.sbom
@@ -47,7 +50,7 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
 
     if args.project_uuid:
         sbom_upload.project = args.project_uuid
-    elif args.auto_create:
+    elif args.auto_create and args.clone:
         project = find_project_by_name(client=client, name=args.project_name)
         if project and project.version != args.project_version:
             wait_for_project_clone(client=client, project=project, args=args)
