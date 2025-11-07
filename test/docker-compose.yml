@@ -99,13 +99,14 @@ services:
       ALPINE_DATABASE_DRIVER: "org.postgresql.Driver"
       ALPINE_DATABASE_USERNAME: "dtrack"
       ALPINE_DATABASE_PASSWORD: "dtrack"
+      SYSTEM_REQUIREMENT_CHECK_ENABLED: "false"
       # ALPINE_HTTP_PROXY_ADDRESS: "proxy.example.com"
     deploy:
-      resources:
-        limits:
-          memory: 12288m
-        reservations:
-          memory: 8192m
+#      resources:
+#        limits:
+#          memory: 12288m
+#        reservations:
+#          memory: 8192m
       restart_policy:
         condition: on-failure
     ports:

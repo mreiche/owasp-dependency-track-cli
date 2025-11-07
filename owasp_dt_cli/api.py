@@ -7,21 +7,20 @@ from owasp_dt.models import Project, ProjectProperty
 from owasp_dt.types import Response
 from tinystream import Stream
 
-from owasp_dt_cli.config import reqenv, parse_true, getenv
-from owasp_dt_cli.models import compare_last_bom_import
+from owasp_dt_cli import models, config
 
 
 def create_client_from_env() -> Client:
-    base_url = reqenv("OWASP_DTRACK_URL")
+    base_url = config.reqenv("OWASP_DTRACK_URL")
     return Client(
         base_url=f"{base_url}/api",
         headers={
-            "X-Api-Key": reqenv("OWASP_DTRACK_API_KEY")
+            "X-Api-Key": config.reqenv("OWASP_DTRACK_API_KEY")
         },
-        verify_ssl=getenv("OWASP_DTRACK_VERIFY_SSL", "1", parse_true),
+        verify_ssl=config.getenv("OWASP_DTRACK_VERIFY_SSL", "1", config.parse_true),
         raise_on_unexpected_status=False,
         httpx_args={
-            "proxy": getenv("HTTPS_PROXY", lambda: getenv("HTTP_PROXY", None)),
+            "proxy": config.getenv("HTTPS_PROXY", lambda: config.getenv("HTTP_PROXY", None)),
             #"no_proxy": getenv("NO_PROXY", "")
         }
     )
@@ -49,7 +48,7 @@ def find_project_by_name(client: Client, name: str, version: str = None, latest:
         if latest:
             stream = stream.filter(_filter_latest)
 
-        opt_project = stream.sort(compare_last_bom_import).next()
+        opt_project = stream.sort(models.compare_last_bom_import).next()
         if opt_project.present:
             return opt_project.get()
 

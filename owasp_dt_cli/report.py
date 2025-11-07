@@ -7,8 +7,9 @@ from owasp_dt.models import Component, FindingComponent, FindingVulnerability
 from owasp_dt.models import Finding
 from owasp_dt.models import PolicyViolation
 from tabulate import tabulate
+from tinystream import Stream
 
-from owasp_dt_cli import api, report, config, common
+from owasp_dt_cli import api, config, common, models
 
 init(autoreset=True)
 
@@ -126,12 +127,12 @@ def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[Polic
 
     resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
     assert resp.status_code != 401
-    findings = resp.parsed
-    report.print_findings_table(findings)
+    findings = Stream(resp.parsed).sort(models.compare_finding_score).collect()
+    print_findings_table(findings)
 
     resp = get_violations_by_project.sync_detailed(client=client, uuid=uuid)
     violations = resp.parsed
-    report.print_violations_table(violations)
+    print_violations_table(violations)
     return findings, violations
 
 

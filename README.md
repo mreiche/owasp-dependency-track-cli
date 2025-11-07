@@ -113,10 +113,9 @@ or use the `project deactivate` command afterwards.
 
 ### Uploading new project versions
 The `upload` and `test` commands behave like the following:
-- If the `--auto-create` feature is enabled, a new `--project-version` is provided and a previous uploaded version exists, it will be cloned as new version including all properties, components and audits.
-- All other project versions without `keepActive` property will be deactivated unless `--deactivate-others` is set to `false`
+- If the `--auto-create=true`, a new `--project-version` is provided and a previous uploaded version exists, it will be cloned as new version including properties and audit trail unless `--clone=false`
+- All other project versions without `keepActive` property will be deactivated unless `--deactivate-others=false`. This property can be added manually or via the `project activate` command
 - If `--latest` is set, this new project version will be marked as *Latest*
-- You can patch this property, add it manually or use the `project activate` command
 
 ## Testing
 
