@@ -35,11 +35,13 @@ jobs:
     name: Unit tests and coverage
     runs-on: ubuntu-latest
     permissions: write-all
-    if: >-
-      ${{
-        github.event.pull_request.draft == false
-        && true
-      }}
+    needs: determine_changes
+    if: github.event.pull_request.draft == false
+        && (
+          needs.determine_changes.outputs.project == 'true'
+          || needs.determine_changes.outputs.source == 'true'
+          || needs.determine_changes.outputs.test == 'true'
+        )
     steps:
       - uses: actions/checkout@v4
 

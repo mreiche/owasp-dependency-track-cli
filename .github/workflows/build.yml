@@ -42,6 +42,7 @@ jobs:
 
   build-oci-image:
     name: Build OCI image
+    needs: determine_changes
     runs-on: ubuntu-latest
     permissions: write-all
     if: |
