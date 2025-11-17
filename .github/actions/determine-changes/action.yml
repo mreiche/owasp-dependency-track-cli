@@ -17,7 +17,7 @@ outputs:
   project:
     description: "Whether project changed"
     value: ${{ steps.filter.outputs.project }}
-  tests:
+  test:
     description: "Whether tests changed"
     value: ${{ steps.filter.outputs.test }}
 
