@@ -116,7 +116,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: dependencytrack/frontend:4.13.5
+    image: dependencytrack/frontend:4.13.6
     pull_policy: always
 #    depends_on:
 #      apiserver:
