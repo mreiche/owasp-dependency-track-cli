@@ -44,7 +44,7 @@ def test_analyze_by_name(version: str, parser):
 
 @pytest.mark.depends(on=['test_analyze_by_name'])
 @pytest.mark.parametrize("version", [__name_version])
-def test_report_by_name(version: str, parser):
+def test_report_by_name(version: str, parser, capsys):
     args = parser.parse_args([
         "report",
         "--project-name",
