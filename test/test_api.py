@@ -17,7 +17,9 @@ from owasp_dt.api.policy_condition import create_policy_condition
 from owasp_dt.api.project import get_projects, get_project
 from owasp_dt.api.violation import get_violations_by_project, get_violations
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
-from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType, Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, PolicyConditionOperator, License, ProjectProperty, ProjectPropertyPropertyType
+from owasp_dt.models import UploadBomBody, IsTokenBeingProcessedResponse, ConfigProperty, ConfigPropertyPropertyType, \
+    Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, PolicyConditionOperator, License, \
+    ProjectProperty, ProjectPropertyPropertyType, PolicyOperator
 from owasp_dt.types import UNSET
 from tinystream import Opt
 
@@ -169,6 +171,7 @@ def test_create_test_policy(client: owasp_dt.Client):
         uuid="",
         name="Forbid MIT license",
         violation_state=PolicyViolationState.FAIL,
+        operator=PolicyOperator.ANY,
     )
     resp = create_policy.sync_detailed(client=client, body=policy)
     if resp.status_code == 409:
