@@ -1,4 +1,9 @@
-from owasp_dt.models import Project, ProjectProperty, ProjectPropertyPropertyType, Finding
+from owasp_dt.models import (
+    Finding,
+    Project,
+    ProjectProperty,
+    ProjectPropertyPropertyType,
+)
 
 program_name = "owasp-dtrack-cli"
 
@@ -9,10 +14,9 @@ def map_last_bom_import(project: Project):
 def map_cvss(finding: Finding):
     if finding.vulnerability.cvss_v3_base_score:
         return finding.vulnerability.cvss_v3_base_score
-    elif finding.vulnerability.cvss_v2_base_score:
+    if finding.vulnerability.cvss_v2_base_score:
         return finding.vulnerability.cvss_v2_base_score
-    else:
-        return 0
+    return 0
 
 def compare_last_bom_import(a: Project, b: Project):
     return map_last_bom_import(b) - map_last_bom_import(a)

@@ -44,21 +44,25 @@ def schedule(sleep_time: timedelta, task: Callable):
             sleep_seconds = sleep_time.total_seconds() - task_duration
             time.sleep(max(sleep_seconds, 0))
 
-def assert_project_uuid(client: Client, args):
+def validate_project_uuid(client: Client, args):
     def _find_project():
         project = api.find_project_by_name(
             client=client,
             name=args.project_name,
             version=args.project_version,
-            latest=args.latest
+            latest=args.latest,
         )
-        assert project is not None, f"Project not found: {args.project_name}:{args.project_version}" + (f" (latest)" if args.latest else "")
-        log.LOGGER.info(f"Found project UUID '{project.uuid}' for {project.name}:{project.version}{' (latest)' if project.is_latest else ''}")
+        validate(project is not None, f"Project not found: {args.project_name}:{args.project_version} {' [latest]' if args.latest else ''}")
+        log.LOGGER.info(f"Found project {project.name}:{project.version} (UUID: {project.uuid}){' [latest]' if project.is_latest else ''}")
         return project
 
     if empty(args.project_uuid):
         project = retry(_find_project, int(os.getenv("PROJECT_TIMEOUT_SEC", "20")))
         args.project_uuid = project.uuid
 
-def assert_project_identity(args):
-    assert not empty(args.project_uuid) or not empty(args.project_name), "At least a project UUID or a project name is required"
+def validate_project_identity(args):
+    validate(not empty(args.project_uuid) or not empty(args.project_name), "At least a project UUID or a project name is required")
+
+def validate(condition: bool, msg: str = None):
+    if not condition:
+        raise ValueError(msg)

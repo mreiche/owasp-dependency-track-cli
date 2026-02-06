@@ -3,13 +3,17 @@ from owasp_dt import Client
 from owasp_dt.api.finding import get_findings_by_project
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
-from owasp_dt.models import Component, FindingComponent, FindingVulnerability
-from owasp_dt.models import Finding
-from owasp_dt.models import PolicyViolation
+from owasp_dt.models import (
+    Component,
+    Finding,
+    FindingComponent,
+    FindingVulnerability,
+    PolicyViolation,
+)
 from tabulate import tabulate
 from tinystream import Stream
 
-from owasp_dt_cli import api, config, common, models
+from owasp_dt_cli import api, common, config, models
 
 init(autoreset=True)
 
@@ -29,8 +33,7 @@ __state_color_map: dict[str, str] = {
 def shorten(text: str, max_length: int = 100):
     if len(text) > max_length:
         return text[:97] + "..."
-    else:
-        return text
+    return text
 
 
 def format_severity(severity: str):
@@ -81,14 +84,14 @@ def print_findings_table(findings: list[Finding]):
         "Component",
         "Version (latest)",
         "Vulnerability",
-        "Severity (CVSS3, CVSS2)"
+        "Severity (CVSS3, CVSS2)",
     ]
     data = []
     for finding in findings:
         data.append([
             format_component_identifier(finding.component),
             format_component_version(finding.component),
-            f'{finding.vulnerability.vuln_id} ({shorten(finding.vulnerability.description)})',
+            f"{finding.vulnerability.vuln_id} ({shorten(finding.vulnerability.description)})",
             format_scoring(finding.vulnerability),
         ])
     if len(data) > 0:
@@ -103,7 +106,7 @@ def print_violations_table(violations: list[PolicyViolation]):
         "Component",
         "Version (latest)",
         "Policy",
-        "State"
+        "State",
     ]
     data = []
     for violation in violations:
@@ -123,10 +126,10 @@ def print_violations_table(violations: list[PolicyViolation]):
 def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[PolicyViolation]]:
     resp = get_all_vulnerabilities.sync_detailed(client=client, page_size=1)
     vulnerabilities = resp.parsed
-    assert len(vulnerabilities) > 0, "No vulnerabilities in database"
+    common.validate(len(vulnerabilities) > 0, "No vulnerabilities in database")
 
     resp = get_findings_by_project.sync_detailed(client=client, uuid=uuid)
-    assert resp.status_code != 401
+    common.validate(resp.status_code != 401, str(resp))
     findings = Stream(resp.parsed).sort(models.compare_finding_score).collect()
     print_findings_table(findings)
 
@@ -137,9 +140,9 @@ def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[Polic
 
 
 def handle_report(args):
-    common.assert_project_identity(args)
+    common.validate_project_identity(args)
     client = api.create_client_from_env()
-    common.assert_project_uuid(client=client, args=args)
+    common.validate_project_uuid(client=client, args=args)
 
     findings, violations = report_project(client=client, uuid=args.project_uuid)
     handle_thresholds(findings, violations)
