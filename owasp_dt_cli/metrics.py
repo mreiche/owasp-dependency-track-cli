@@ -3,11 +3,13 @@ from datetime import timedelta
 import owasp_dt
 import prometheus_client as prometheus
 from owasp_dt.api.finding import get_all_findings_1
+from owasp_dt.api.project import (
+    get_project,
+)
 from owasp_dt.api.violation import get_violations
-from owasp_dt.api.project import create_project, get_projects, patch_project, delete_projects, get_project
-from owasp_dt.models import PolicyViolation, Finding, Project
+from owasp_dt.models import Finding, PolicyViolation, Project
 
-from owasp_dt_cli import api
+from owasp_dt_cli import api, common
 from owasp_dt_cli.common import schedule
 from owasp_dt_cli.log import LOGGER
 from owasp_dt_cli.prometheus import PrometheusAdapter
@@ -55,8 +57,8 @@ def update_finding_metrics(
     current_active_projects: dict[str, bool] = {}
     project_cache: dict[str, Project] = {}
 
-    def _add_findings(findings: list[Finding]):
-        for finding in findings:
+    def _add_findings(_findings: list[Finding]):
+        for finding in _findings:
             vulnerability = finding.vulnerability
             component = finding.component
             current_active_projects[component.project_name] = True
@@ -64,7 +66,7 @@ def update_finding_metrics(
             project_uuid = str(component.project)
             if project_uuid not in project_cache:
                 resp = get_project.sync_detailed(client=client, uuid=project_uuid)
-                assert resp.status_code in [200]
+                common.validate(resp.status_code in [200], str(resp))
                 project_cache[project_uuid] = resp.parsed
 
             project = project_cache[project_uuid]
@@ -92,7 +94,7 @@ def update_finding_metrics(
             show_inactive=False,
             show_suppressed=False,
         )
-        assert resp.status_code == 200
+        common.validate(resp.status_code == 200, str(resp))
         findings = resp.parsed
         _add_findings(findings)
     except Exception as e:
@@ -107,8 +109,8 @@ def update_violation_metrics(
 ) -> dict[str, bool]:
     current_active_projects: dict[str, bool] = {}
 
-    def _add_violations(violations: list[PolicyViolation]):
-        for violation in violations:
+    def _add_violations(_violations: list[PolicyViolation]):
+        for violation in _violations:
             component = violation.component
             project = violation.project
             policy = violation.policy_condition.policy

@@ -1,5 +1,6 @@
 import os
 from typing import Callable
+
 type Mapper = Callable[[str], any]
 
 def reqenv(key: str, mapper: Mapper = None):

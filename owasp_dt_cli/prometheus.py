@@ -1,4 +1,12 @@
-from prometheus_client import Gauge, Enum, CollectorRegistry, Summary, PROCESS_COLLECTOR, PLATFORM_COLLECTOR, GC_COLLECTOR
+from prometheus_client import (
+    GC_COLLECTOR,
+    PLATFORM_COLLECTOR,
+    PROCESS_COLLECTOR,
+    CollectorRegistry,
+    Enum,
+    Gauge,
+    Summary,
+)
 
 from owasp_dt_cli.log import LOGGER
 

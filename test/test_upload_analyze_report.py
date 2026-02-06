@@ -15,6 +15,20 @@ __project_name = "test-upload"
 __project_uuid: None
 
 
+def test_upload_invalid_file(client: Client, parser) -> None:
+    args = parser.parse_args([
+        "upload",
+        "--project-name",
+        "invalid-project",
+        "--auto-create",
+        "--project-version",
+        "1.0.0",
+        str(__base_dir / "files/project.json"),
+    ])
+
+    with pytest.raises(ValueError, match="The uploaded BOM is invalid"):
+        args.func(args)
+
 @pytest.mark.parametrize("version", [__name_version])
 def test_upload_by_name(version: str, parser):
     args = parser.parse_args([

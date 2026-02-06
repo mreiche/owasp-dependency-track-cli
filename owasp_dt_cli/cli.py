@@ -1,13 +1,14 @@
 import dotenv
 
-from owasp_dt_cli import log, arguments
+from owasp_dt_cli import arguments, common, log
+
 
 def main():
     parser = arguments.create_parser()
     try:
         args = parser.parse_args()
         if args.env:
-            assert dotenv.load_dotenv(args.env), f"Unable to load env file: '{args.env}'"
+            common.validate(dotenv.load_dotenv(args.env), f"Unable to load env file: '{args.env}'")
         args.func(args)
     except Exception as e:
         log.LOGGER.error(e)
