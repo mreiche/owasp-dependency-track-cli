@@ -8,6 +8,7 @@ from owasp_dt.api.project import (
     delete_projects,
     get_projects,
     patch_project,
+    delete_project,
 )
 from owasp_dt.api.project_property import delete_property_1
 from owasp_dt.models import Project, ProjectProperty, ProjectPropertyPropertyType
@@ -132,27 +133,9 @@ def handle_project_cleanup(args):
         )
         return projects
 
-    project_uuids_to_delete = []
+    def _filter_active(project: Project):
+        return project.active
+
     for projects in api.page_result(_loader):
-        for project in projects:
-            if project.active is False:
-                project_uuids_to_delete.append(project.uuid)
-
-    def _pop_items(source_list: list, size: int = 25):
-        items = source_list[:size]
-        del source_list[:size]
-        return items
-
-    projects_to_delete = len(project_uuids_to_delete)
-    if projects_to_delete > 0:
-        while True:
-            uuids = _pop_items(project_uuids_to_delete)
-            uuid_count = len(uuids)
-            if uuid_count > 0:
-                log.LOGGER.info(f"Delete {uuid_count} of {projects_to_delete} inactive projects")
-                projects_to_delete = len(project_uuids_to_delete)
-                delete_projects.sync_detailed(client=client, body=uuids)
-            else:
-                break
-    else:
-        log.LOGGER.info("No inactive projects found (If you know there are some, this may be related to https://github.com/DependencyTrack/dependency-track/issues/5781)")
+        for project in Stream(projects).filter(_filter_active):
+            delete_project.sync_detailed(uuid=project.uuid, client=client)
