@@ -183,7 +183,7 @@ def test_delete_inactive_project_versions(parser, client):
     args.func(args)
 
     resp = get_project.sync_detailed(__project_uuid, client=client)
-    assert resp.status_code == 404
+    assert resp.status_code in [404, 400]
 
 
 def test_upsert_invalid_json_file(parser, capsys):

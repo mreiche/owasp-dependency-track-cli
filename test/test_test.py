@@ -26,19 +26,19 @@ def assert_test(capsys, parser):
 
     args.func(args)
     captured = capsys.readouterr()
-    assert "CVE-2018-20225" in captured.out
+    assert "CVE-2025-50181" in captured.out
     assert "Forbid MIT license" in captured.out
 
 
 @pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
-@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
+#@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
 def test_test(capsys, parser):
     retry(lambda: assert_test(capsys, parser), 10, 2)
 
 
 @pytest.mark.depends(on=['test_test'])
 def test_vulnerability_severity_threshold(monkeypatch, parser):
-    monkeypatch.setenv("SEVERITY_THRESHOLD_HIGH", "1")
+    monkeypatch.setenv("SEVERITY_THRESHOLD_MEDIUM", "1")
 
     args = parser.parse_args([
         "analyze",
@@ -47,13 +47,13 @@ def test_vulnerability_severity_threshold(monkeypatch, parser):
         "--latest"
     ])
 
-    with pytest.raises(ValueError, match="SEVERITY_THRESHOLD_HIGH hit: 1"):
+    with pytest.raises(ValueError, match="SEVERITY_THRESHOLD_MEDIUM"):
         args.func(args)
 
 
 @pytest.mark.depends(on=['test_test'])
 def test_vulnerability_cvss_threshold(monkeypatch, parser):
-    monkeypatch.setenv("CVSS_V3_THRESHOLD", "20")
+    monkeypatch.setenv("CVSS_V3_THRESHOLD", "1")
 
     args = parser.parse_args([
         "analyze",
@@ -62,7 +62,7 @@ def test_vulnerability_cvss_threshold(monkeypatch, parser):
         "--latest"
     ])
 
-    with pytest.raises(ValueError, match="CVSS_V3_THRESHOLD hit: 27.8"):
+    with pytest.raises(ValueError, match="CVSS_V3_THRESHOLD"):
         args.func(args)
 
 

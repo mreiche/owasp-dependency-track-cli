@@ -57,8 +57,8 @@ def update_finding_metrics(
     current_active_projects: dict[str, bool] = {}
     project_cache: dict[str, Project] = {}
 
-    def _add_findings(findings: list[Finding]):
-        for finding in findings:
+    def _add_findings(_findings: list[Finding]):
+        for finding in _findings:
             vulnerability = finding.vulnerability
             component = finding.component
             current_active_projects[component.project_name] = True
@@ -109,8 +109,8 @@ def update_violation_metrics(
 ) -> dict[str, bool]:
     current_active_projects: dict[str, bool] = {}
 
-    def _add_violations(violations: list[PolicyViolation]):
-        for violation in violations:
+    def _add_violations(_violations: list[PolicyViolation]):
+        for violation in _violations:
             component = violation.component
             project = violation.project
             policy = violation.policy_condition.policy

@@ -5,7 +5,6 @@ from is_empty import empty, not_empty
 from owasp_dt import types
 from owasp_dt.api.project import (
     create_project,
-    delete_projects,
     get_projects,
     patch_project,
     delete_project,
@@ -80,8 +79,8 @@ def handle_project_upsert(args):
 
     if len(properties) > 0:
         log.LOGGER.info("Update project properties")
-        for property in properties:
-            api.upsert_project_property(client=client, uuid=project_uuid, property=property)
+        for project_property in properties:
+            api.upsert_project_property(client=client, uuid=project_uuid, property=project_property)
 
     print(project_uuid)
 
@@ -112,13 +111,13 @@ def handle_project_property_remove(args):
     common.validate_project_identity(args)
     client = api.create_client_from_env()
     common.validate_project_uuid(client=client, args=args)
-    property = ProjectProperty(
+    project_property = ProjectProperty(
         group_name=args.group_name,
         property_name=args.property_name,
         property_type=ProjectPropertyPropertyType.STRING,
         property_value="",
     )
-    delete_property_1.sync_detailed(client=client, uuid=args.project_uuid, body=property)
+    delete_property_1.sync_detailed(client=client, uuid=args.project_uuid, body=project_property)
 
 
 def handle_project_cleanup(args):
@@ -133,9 +132,10 @@ def handle_project_cleanup(args):
         )
         return projects
 
-    def _filter_active(project: Project):
-        return project.active
+    def _filter_inactive(_project: Project):
+        return not _project.active
 
     for projects in api.page_result(_loader):
-        for project in Stream(projects).filter(_filter_active):
-            delete_project.sync_detailed(uuid=project.uuid, client=client)
+        for project in Stream(projects).filter(_filter_inactive):
+            resp = delete_project.sync_detailed(uuid=project.uuid, client=client)
+            common.validate(resp.status_code in [204], str(resp))

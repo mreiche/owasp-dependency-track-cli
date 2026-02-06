@@ -73,9 +73,10 @@ def format_component_identifier(component: FindingComponent | Component):
 
 
 def format_scoring(vulnerability: FindingVulnerability):
-    scores = []
-    scores.append(str(vulnerability.cvss_v3_base_score) if vulnerability.cvss_v3_base_score else "?")
-    scores.append(str(vulnerability.cvss_v2_base_score) if vulnerability.cvss_v2_base_score else "?")
+    scores = [
+        str(vulnerability.cvss_v3_base_score) if vulnerability.cvss_v3_base_score else "?",
+        str(vulnerability.cvss_v2_base_score) if vulnerability.cvss_v2_base_score else "?",
+    ]
     return f"{format_severity(vulnerability.severity)} ({', '.join(scores)})"
 
 
