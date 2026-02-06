@@ -139,4 +139,3 @@ podman run -it --rm --network=test_default  -v "$(pwd)/test:/test" postgres:17-a
 This library is part of a wider OWASP Dependency Track tool chain:
 - OWASP Dependency Track Python API client: https://github.com/mreiche/owasp-dependency-track-python-client
 - OWASP Dependency Track CLI: https://github.com/mreiche/owasp-dependency-track-cli
-- OWASP Dependency Track Azure DevOps Sync: https://github.com/mreiche/owasp-dependency-track-azure-devops
