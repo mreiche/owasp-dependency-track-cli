@@ -2,7 +2,7 @@ import random
 from pathlib import Path
 
 import pytest
-from owasp_dt import Client
+from owasp_dt import Client, utils
 from owasp_dt.api.project import get_projects
 
 from owasp_dt_cli import api
@@ -117,7 +117,7 @@ def test_cleanup_older(version: str, client: Client):
         )
 
     projects_loaded = 0
-    for projects in api.page_result(_loader):
+    for projects in utils.page_result(_loader):
         for project in projects:
             projects_loaded += 1
             assert project.active is False if project.version != version else True

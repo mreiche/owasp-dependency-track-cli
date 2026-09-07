@@ -117,25 +117,13 @@ The `upload` and `test` commands behave like the following:
 - All other project versions without `keepActive` property will be deactivated unless `--deactivate-others=false`. This property can be added manually or via the `project activate` command
 - If `--latest` is set, this new project version will be marked as *Latest*
 
-## Testing
+## Development
 
-### Start the test environment
-```shell
-cd test
-podman|docker compose up
-```
-
-- Preconfigured user: `admin:admin2`
-- Preconfigured API key: see `test/test.env`
-
-
-### Update the test database
-```shell
-podman run -it --rm --network=test_default  -v "$(pwd)/test:/test" postgres:17-alpine pg_dump -h postgres -d dtrack -U "dtrack" -p "5432" -f "/test/postgres-init/init.sql"
-```
-
-## More OWASP Dependency Track utils
-
-This library is part of a wider OWASP Dependency Track tool chain:
-- OWASP Dependency Track Python API client: https://github.com/mreiche/owasp-dependency-track-python-client
-- OWASP Dependency Track CLI: https://github.com/mreiche/owasp-dependency-track-cli
+1. Install the requirements: `pip install -e ".[test]"` or `uv sync --extra test`
+2. Start the test environment
+   ```shell
+   cd test
+   podman|docker compose up
+   ```
+   - Preconfigured user: `admin:admin2`
+   - Preconfigured API key: see `test/test.env`

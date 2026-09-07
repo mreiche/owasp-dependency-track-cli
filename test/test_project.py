@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 from owasp_dt.api.project import get_project
-from tinystream import Opt
+from owasp_dt.api.project_property import get_properties_1
+from tinystream import Opt, Stream
 
 __base_dir = Path(__file__).parent
 
@@ -72,7 +73,10 @@ def test_patch_project_from_string(parser, capsys, client):
     opt_tag = Opt(project).map_key("tags").stream().filter_key_value("name", test_tag_name.lower()).next()
     assert opt_tag.present
 
-    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_patch_project_properties").next()
+    resp = get_properties_1.sync_detailed(client=client, uuid=project_uuid)
+    properties = resp.parsed
+    opt_property = Stream(properties).find(lambda p: p.property_name == "test_patch_project_properties")
+    #opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_patch_project_properties").next()
     assert opt_property.present
     assert opt_property.get().property_value == "success"
 
@@ -107,7 +111,9 @@ def test_update_project_property(parser, capsys, client):
     assert project.is_latest is True
     assert project.active is False
 
-    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_patch_project_properties").next()
+    resp = get_properties_1.sync_detailed(client=client, uuid=__project_uuid)
+    properties = resp.parsed
+    opt_property = Stream(properties).find(lambda p: p.property_name == "test_patch_project_properties")
     assert opt_property.present
     assert opt_property.get().property_value == "changed"
 
@@ -127,10 +133,10 @@ def test_remove_project_property(parser, capsys, client):
     ])
 
     args.func(args)
-    resp = get_project.sync_detailed(__project_uuid, client=client)
-    project = resp.parsed
 
-    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_upsert_project_property").next()
+    resp = get_properties_1.sync_detailed(client=client, uuid=__project_uuid)
+    properties = resp.parsed
+    opt_property = Stream(properties).find(lambda p: p.property_name == "test_upsert_project_property")
     assert opt_property.absent
 
 
@@ -148,7 +154,9 @@ def test_activate_project(parser, client):
     project = resp.parsed
     assert project.active is True
 
-    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "keepActive").next()
+    resp = get_properties_1.sync_detailed(client=client, uuid=__project_uuid)
+    properties = resp.parsed
+    opt_property = Stream(properties).find(lambda p: p.property_name == "keepActive")
     assert opt_property.present
     assert opt_property.get().property_value == "true"
 
@@ -167,7 +175,9 @@ def test_deactivate_project(parser, client):
     project = resp.parsed
     assert project.active is False
 
-    opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "keepActive").next()
+    resp = get_properties_1.sync_detailed(client=client, uuid=__project_uuid)
+    properties = resp.parsed
+    opt_property = Stream(properties).find(lambda p: p.property_name == "keepActive")
     assert opt_property.absent
 
 

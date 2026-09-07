@@ -2,19 +2,21 @@ from pathlib import Path
 
 import owasp_dt
 from is_empty import empty
-from owasp_dt import Client
+from owasp_dt import Client, utils
 from owasp_dt.api.bom import upload_bom
 from owasp_dt.api.project import clone_project, get_project, get_projects, patch_project
+from owasp_dt.api.project_property import get_properties_1
 from owasp_dt.models import (
     BomUploadResponse,
     CloneProjectRequest,
     Project,
-    ProjectProperty,
-    UploadBomBody,
+    CreateComponentPropertyRequest,
+    UploadBomBody, ProjectPropertyResponse,
 )
+from owasp_dt.types import File
 from tinystream import Opt, Stream
 
-from owasp_dt_cli import api, common, log, models
+from owasp_dt_cli import common, log, models
 from owasp_dt_cli.analyze import wait_for_token_processed
 from owasp_dt_cli.api import find_project_by_name
 
@@ -37,6 +39,11 @@ def wait_for_project_clone(client: owasp_dt.Client, project: Project, args):
 
     log.LOGGER.debug(clone_request)
     resp = clone_project.sync_detailed(client=client, body=clone_request)
+
+    # Already uploaded
+    if resp.status_code == 202:
+        return
+
     # if resp.status_code == 409:
     #     return
 
@@ -46,15 +53,16 @@ def wait_for_project_clone(client: owasp_dt.Client, project: Project, args):
     wait_for_token_processed(client=client, token=upload.token)
 
 def handle_upload(args) -> tuple[BomUploadResponse, Client]:
-    sbom_file: Path = args.sbom
-    common.validate(sbom_file.exists(), f"{sbom_file} doesn't exists")
+    sbom_file_path: Path = args.sbom
+    common.validate(sbom_file_path.exists(), f"{sbom_file_path} doesn't exists")
     common.validate_project_identity(args)
-    client = api.create_client_from_env()
+    client = utils.create_client_from_env()
 
+    sbom_file = File(payload=sbom_file_path.open().read())
     sbom_upload = UploadBomBody(
         is_latest=args.latest,
         auto_create=args.auto_create,
-        bom=sbom_file.read_text(),
+        bom=sbom_file,
     )
 
     if args.project_uuid:
@@ -87,7 +95,7 @@ def handle_upload(args) -> tuple[BomUploadResponse, Client]:
     common.validate(resp.status_code != 404, f"Project not found: {args.project_name}:{args.project_version} (you may missing --auto-create)")
 
     upload = resp.parsed
-    common.validate(isinstance(upload, BomUploadResponse), str(upload))
+    common.validate(isinstance(upload, BomUploadResponse), str(resp.content))
 
     if args.deactivate_others:
         deactivate_other_projects(client=client, args=args)
@@ -106,10 +114,12 @@ def deactivate_other_projects(client: owasp_dt.Client, args):
         return project.version != args.project_version and project.active
 
     def _filter_keep_active_property(project: Project):
-        def _find_keep_active_property(property: ProjectProperty):
+        def _find_keep_active_property(property: ProjectPropertyResponse):
             return property.group_name == models.keep_active_property.group_name and property.property_name == models.keep_active_property.property_name
 
-        opt_property = Opt(project).map_key("properties").stream().find(_find_keep_active_property)
+        resp = get_properties_1.sync_detailed(client=client, uuid=project.uuid)
+        properties = resp.parsed
+        opt_property = Stream(properties).find(_find_keep_active_property)
         return opt_property.absent or opt_property.get().property_value.lower() != "true"
 
     def _loader(page_number: int):
@@ -120,7 +130,7 @@ def deactivate_other_projects(client: owasp_dt.Client, args):
             page_size=1000,
         )
 
-    for projects in api.page_result(_loader):
+    for projects in utils.page_result(_loader):
         for project in Stream(projects).filter(_filter_project_version).filter(_filter_keep_active_property):
             resp = patch_project.sync_detailed(client=client, uuid=project.uuid, body=Project(active=False))
             if resp.status_code not in (200,):

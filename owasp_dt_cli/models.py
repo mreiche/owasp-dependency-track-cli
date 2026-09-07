@@ -1,8 +1,8 @@
 from owasp_dt.models import (
     Finding,
     Project,
-    ProjectProperty,
-    ProjectPropertyPropertyType,
+    CreateProjectPropertyRequest,
+    CreateProjectPropertyRequestPropertyType,
 )
 
 program_name = "owasp-dtrack-cli"
@@ -24,9 +24,9 @@ def compare_last_bom_import(a: Project, b: Project):
 def compare_finding_score(a: Finding, b: Finding):
     return map_cvss(b) - map_cvss(a)
 
-keep_active_property = ProjectProperty(
+keep_active_property = CreateProjectPropertyRequest(
     group_name=program_name,
     property_name="keepActive",
-    property_type=ProjectPropertyPropertyType.BOOLEAN,
+    property_type=CreateProjectPropertyRequestPropertyType.BOOLEAN,
     property_value="TRUE",
 )

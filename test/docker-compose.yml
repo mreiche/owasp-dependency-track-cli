@@ -1,24 +1,43 @@
+#version: "3.8"
 services:
+
+  init-keys:
+    image: alpine:3
+    user: "1000:1000" # Must match the apiserver UID
+    command:
+      - "sh"
+      - "-cex"
+      - |
+        mkdir -p /data/.dependency-track/keys && cp /init/secret-management-kek.json /data/.dependency-track/keys/
+        sleep 2  # Waiting for postgres to be ready
+    volumes:
+      - 'apiserver-data:/data'
+      - './init:/init:ro'
+
   apiserver:
-    image: dependencytrack/apiserver:5.0.2
+    image: dependencytrack/apiserver:5.1.0
     depends_on:
+      init-keys:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
     environment:
       DT_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/dtrack"
       DT_DATASOURCE_USERNAME: "dtrack"
       DT_DATASOURCE_PASSWORD: "dtrack"
+#      HTTP_PROXY: "http://localhost"
+#      HTTPS_PROXY: "http://localhost"
     deploy:
       restart_policy:
         condition: on-failure
     ports:
     - '8080:8080'
     volumes:
-    - 'apiserver-data:/data'
+      - 'apiserver-data:/data'
     restart: unless-stopped
 
   frontend:
-    image: dependencytrack/frontend:5.0.2
+    image: dependencytrack/frontend:5.1.0
     environment:
       API_BASE_URL: "http://localhost:8080"
     ports:
@@ -38,7 +57,7 @@ services:
       retries: 3
     volumes:
     - "postgres-data:/var/lib/postgresql"
-#    - "./postgres-init:/docker-entrypoint-initdb.d"
+    - "./init/init.sql:/docker-entrypoint-initdb.d/init.sql"
     restart: unless-stopped
 
 #  trivy:
