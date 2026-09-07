@@ -9,6 +9,7 @@ from owasp_dt_cli.common import retry
 __base_dir = Path(__file__).parent
 
 
+@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/7242")
 def assert_test(capsys, parser):
     args = parser.parse_args([
         "test",

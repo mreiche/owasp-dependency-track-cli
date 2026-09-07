@@ -68,11 +68,11 @@ services:
       - :8080
       - --token
       - secret
-#    volumes:
-#      - "trivy-cache:/root/.cache/trivy"
+    volumes:
+      - "trivy-cache:/root/.cache/trivy"
     restart: unless-stopped
 
 volumes:
   apiserver-data: {}
   postgres-data: {}
-#  trivy-cache: {}
+  trivy-cache: {}

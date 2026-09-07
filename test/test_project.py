@@ -76,7 +76,6 @@ def test_patch_project_from_string(parser, capsys, client):
     resp = get_properties_1.sync_detailed(client=client, uuid=project_uuid)
     properties = resp.parsed
     opt_property = Stream(properties).find(lambda p: p.property_name == "test_patch_project_properties")
-    #opt_property = Opt(project).map_key("properties").stream().filter_key_value("property_name", "test_patch_project_properties").next()
     assert opt_property.present
     assert opt_property.get().property_value == "success"
 
