@@ -9,7 +9,6 @@ from owasp_dt_cli.common import retry
 __base_dir = Path(__file__).parent
 
 
-@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/7242")
 def assert_test(capsys, parser):
     args = parser.parse_args([
         "test",
@@ -31,7 +30,11 @@ def assert_test(capsys, parser):
     assert "Forbid MIT license" in captured.out
 
 
-@pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
+@pytest.mark.depends(on=[
+    "test/test_api.py::test_create_test_policy",
+    "test/test_api.py::test_get_vulnerabilities",
+    "test/test_trivy.py::test_configure_trivy_scanner"
+])
 #@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
 def test_test(capsys, parser):
     retry(lambda: assert_test(capsys, parser), 10, 2)
