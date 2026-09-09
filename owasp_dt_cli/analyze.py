@@ -1,15 +1,15 @@
-from owasp_dt import Client
+from owasp_dt import Client, utils
 from owasp_dt.api.event import is_token_being_processed_1
 from owasp_dt.api.finding import analyze_project
 from owasp_dt.models import BomUploadResponse, IsTokenBeingProcessedResponse
 
-from owasp_dt_cli import api, common, config, log
+from owasp_dt_cli import common, config, log
 from owasp_dt_cli.report import handle_thresholds, report_project
 
 
 def handle_analyze(args):
     common.validate_project_identity(args)
-    client = api.create_client_from_env()
+    client = utils.create_client_from_env()
     common.validate_project_uuid(client=client, args=args)
 
     resp = analyze_project.sync_detailed(client=client, uuid=args.project_uuid)

@@ -1,5 +1,5 @@
 from colorama import Fore, Style, init
-from owasp_dt import Client
+from owasp_dt import Client, utils
 from owasp_dt.api.finding import get_findings_by_project
 from owasp_dt.api.violation import get_violations_by_project
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
@@ -13,7 +13,7 @@ from owasp_dt.models import (
 from tabulate import tabulate
 from tinystream import Stream
 
-from owasp_dt_cli import api, common, config, models
+from owasp_dt_cli import common, config, models
 
 init(autoreset=True)
 
@@ -142,7 +142,7 @@ def report_project(client: Client, uuid: str) -> tuple[list[Finding], list[Polic
 
 def handle_report(args):
     common.validate_project_identity(args)
-    client = api.create_client_from_env()
+    client = utils.create_client_from_env()
     common.validate_project_uuid(client=client, args=args)
 
     findings, violations = report_project(client=client, uuid=args.project_uuid)

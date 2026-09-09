@@ -2,8 +2,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from owasp_dt.api.policy import delete_policy, get_policies
-
-from owasp_dt_cli.api import create_client_from_env
+from owasp_dt import utils
 
 base_dir = Path(__file__).parent
 
@@ -13,7 +12,7 @@ def setup_module():
     assert load_dotenv(base_dir / "test.env")
 
 def teardown_module():
-    client = create_client_from_env()
+    client = utils.create_client_from_env()
     resp = get_policies.sync_detailed(client=client)
     assert resp.status_code == 200
 

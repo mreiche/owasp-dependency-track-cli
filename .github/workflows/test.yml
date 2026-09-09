@@ -3,8 +3,16 @@ name: Test
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - .github/workflows/test.yml
+      - owasp_dt_cli/**
+      - test/**
   pull_request:
     branches: [ "main" ]
+    paths:
+      - .github/workflows/test.yml
+      - owasp_dt_cli/**
+      - test/**
   workflow_dispatch:
 
 permissions:
@@ -23,7 +31,7 @@ jobs:
       test: ${{ steps.determine.outputs.test }}
       project: ${{ steps.determine.outputs.project }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -63,7 +71,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: "pip"
           cache-dependency-path: pyproject.toml
 

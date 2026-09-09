@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-import owasp_dt
+from owasp_dt import Client, utils
 import prometheus_client as prometheus
 from owasp_dt.api.finding import get_all_findings_1
 from owasp_dt.api.project import (
@@ -22,7 +22,7 @@ def handle_prometheus_metrics(args):
 
     cvss_score = prometheus.Gauge(adapter.prefix_metric_key("cvss_score"), "Project CVEs and their scoring", ["project_name", "group_name", "component_name", "cve", "cvss_version", "severity"], registry=registry)
     violations = prometheus.Gauge(adapter.prefix_metric_key("policy_violations"), "Project Policy violations", ["project_name", "group_name", "component_name", "policy_name", "state"], registry=registry)
-    client = api.create_client_from_env()
+    client = utils.create_client_from_env()
     active_project_names = []
 
     def _update_metrics():
@@ -51,7 +51,7 @@ def handle_prometheus_metrics(args):
 
 
 def update_finding_metrics(
-        client: owasp_dt.Client,
+        client: Client,
         instrument: prometheus.Gauge,
 ) -> dict[str, bool]:
     current_active_projects: dict[str, bool] = {}
@@ -104,7 +104,7 @@ def update_finding_metrics(
 
 
 def update_violation_metrics(
-        client: owasp_dt.Client,
+        client: Client,
         instrument: prometheus.Gauge,
 ) -> dict[str, bool]:
     current_active_projects: dict[str, bool] = {}

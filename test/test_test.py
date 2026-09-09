@@ -30,8 +30,11 @@ def assert_test(capsys, parser):
     assert "Forbid MIT license" in captured.out
 
 
-@pytest.mark.depends(on=["test/test_api.py::test_create_test_policy", "test/test_api.py::test_get_vulnerabilities"])
-#@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
+@pytest.mark.depends(on=[
+    "test/test_api.py::test_create_test_policy",
+    "test/test_api.py::test_get_vulnerabilities",
+    "test/test_trivy.py::test_configure_trivy_scanner"
+])
 def test_test(capsys, parser):
     retry(lambda: assert_test(capsys, parser), 10, 2)
 
