@@ -35,7 +35,6 @@ def assert_test(capsys, parser):
     "test/test_api.py::test_get_vulnerabilities",
     "test/test_trivy.py::test_configure_trivy_scanner"
 ])
-#@pytest.mark.xfail(reason="https://github.com/DependencyTrack/dependency-track/issues/5401")
 def test_test(capsys, parser):
     retry(lambda: assert_test(capsys, parser), 10, 2)
 

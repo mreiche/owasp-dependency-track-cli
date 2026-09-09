@@ -3,8 +3,16 @@ name: Test
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - .github/workflows/test.yml
+      - owasp_dt_cli/**
+      - test/**
   pull_request:
     branches: [ "main" ]
+    paths:
+      - .github/workflows/test.yml
+      - owasp_dt_cli/**
+      - test/**
   workflow_dispatch:
 
 permissions:
