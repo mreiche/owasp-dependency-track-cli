@@ -32,3 +32,8 @@ test = [
     "pytest-depends==1.0.1",
     "pytest-cov==7.1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/reiche-world/owasp-dependency-track-cli"
+Repository = "https://github.com/reiche-world/owasp-dependency-track-cli"
+"Bug Tracker" = "https://github.com/reiche-world/owasp-dependency-track-cli/issues"
