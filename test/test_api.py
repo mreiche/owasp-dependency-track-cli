@@ -2,17 +2,21 @@ import httpx
 import owasp_dt
 import pytest
 from is_empty import empty
+from owasp_dt import Client, utils
 from owasp_dt.api.license_ import get_license
 from owasp_dt.api.policy import create_policy
 from owasp_dt.api.policy_condition import create_policy_condition
 from owasp_dt.api.vulnerability import get_all_vulnerabilities
+from owasp_dt.api.team import generate_api_key, get_teams
 from owasp_dt.models import Policy, PolicyViolationState, PolicyCondition, PolicyConditionSubject, \
-    PolicyConditionOperator, PolicyOperator, LicenseResponse
+    PolicyConditionOperator, PolicyOperator, LicenseResponse, Team
 from owasp_dt.types import UNSET
 from owasp_dt_v2.api.extensions import update_extension_config
 from owasp_dt_v2.api.vuln_data_sources import trigger_vuln_data_source_mirror_run
 from owasp_dt_v2.models import UpdateExtensionConfigRequest, UpdateExtensionConfigRequestConfig
+from tinystream import Stream
 
+import test
 from owasp_dt_cli import common
 
 __mit_license_uuid: str | None = None
@@ -93,3 +97,17 @@ def test_proxy_fails(monkeypatch, client: owasp_dt.Client):
     monkeypatch.setenv("HTTP_PROXY", "http://localhost:3128")
     with pytest.raises(expected_exception=httpx.ConnectError):
         _get_vulnerabilities(client)
+
+
+def test_create_restricted_api_key(client: Client):
+    resp = get_teams.sync_detailed(client=client)
+    teams = resp.parsed
+    opt_automation_team = Stream(teams).find(lambda t: t.name == "Automation").type(Team)
+    assert opt_automation_team.present
+
+    automation_team = opt_automation_team.get()
+    resp = generate_api_key.sync_detailed(client=client, uuid=automation_team.uuid)
+    assert resp.status_code == 201
+
+    key = resp.parsed
+    test.restricted_api_key = key.key

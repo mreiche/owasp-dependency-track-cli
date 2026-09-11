@@ -10,9 +10,13 @@ def main():
         if args.env:
             common.validate(dotenv.load_dotenv(args.env), f"Unable to load env file: '{args.env}'")
         args.func(args)
-    except Exception as e:
+    except ValueError as e:
         log.LOGGER.error(e)
+        exit(2)
+    except Exception as e:
+        log.LOGGER.exception(e)
         exit(1)
+
 
 if __name__ == "__main__":  # pragma: no cover
     main()  # pragma: no cover

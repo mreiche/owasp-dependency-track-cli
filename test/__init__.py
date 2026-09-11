@@ -7,6 +7,7 @@ from owasp_dt import utils
 base_dir = Path(__file__).parent
 
 test_project_name = "test-api"
+restricted_api_key: str = None
 
 def setup_module():
     assert load_dotenv(base_dir / "test.env")
