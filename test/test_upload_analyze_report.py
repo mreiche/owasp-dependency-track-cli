@@ -1,11 +1,15 @@
+import logging
 import random
+from json import JSONDecodeError
 from pathlib import Path
 
 import pytest
 from owasp_dt import Client, utils
 from owasp_dt.api.project import get_projects
 
-from owasp_dt_cli import api
+from owasp_dt_cli import api, log
+
+import test
 
 __base_dir = Path(__file__).parent
 
@@ -123,3 +127,25 @@ def test_cleanup_older(version: str, client: Client):
             assert project.active is False if project.version != version else True
 
     assert projects_loaded > 0
+
+
+@pytest.mark.depends(on=['test/test_api.py::test_create_restricted_api_key', 'test_upload_by_name'])
+def test_clone_upload_with_restricted_api_key_fails(parser, monkeypatch, capsys):
+    monkeypatch.setenv("OWASP_DTRACK_API_KEY", test.restricted_api_key)
+    log.HTTPX_LOGGER.setLevel(logging.DEBUG)
+
+    args = parser.parse_args([
+        "upload",
+        "--clone",
+        "--project-name",
+        __project_name,
+        "--project-version",
+        "cloned",
+        "--auto-create",
+        "--project-version",
+        "cloned",
+        str(__base_dir / "files/project.json"),
+    ])
+
+    with pytest.raises(JSONDecodeError):
+        args.func(args)
