@@ -1,6 +1,7 @@
-from owasp_dt.types import Unset
+from owasp_dt.types import Unset, UNSET
 
-from owasp_dt_cli.report import filter_unset
+from owasp_dt_cli.report import filter_unset, shorten, format_violation_state, format_component_version, \
+    format_component_identifier, format_scoring, format_policy_name
 
 
 def test_filter_unset():
@@ -9,4 +10,25 @@ def test_filter_unset():
     assert filter_unset("something") == "something"
     assert filter_unset(False) == False
     assert filter_unset(True) == True
-    assert filter_unset(Unset) == Unset
+    assert filter_unset(UNSET) is None
+
+def test_shorten():
+    assert shorten("something") == "something"
+    assert shorten(UNSET) == ""
+    long_text = "abc"*40
+    assert shorten(long_text) == f"{long_text[:97]}..."
+
+def test_format_violation_state():
+    assert format_violation_state(UNSET) is "?"
+
+def test_format_component_version():
+    assert format_component_version(UNSET) is "?"
+
+def test_format_component_identifier():
+    assert format_component_identifier(UNSET) is "?"
+
+def test_format_scoring():
+    assert format_scoring(UNSET) is "?"
+
+def test_format_policy_name():
+    assert format_policy_name(UNSET) is "?"

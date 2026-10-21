@@ -89,7 +89,7 @@ def format_component_identifier(component: FindingComponent | Component | Unset)
 
 def format_scoring(vulnerability: FindingVulnerability|Unset):
     if isinstance(vulnerability, Unset):
-        return "(na)"
+        return "?"
 
     scores = [
         str(filter_unset(vulnerability.cvss_v3_base_score, "?")),
@@ -101,7 +101,7 @@ def format_scoring(vulnerability: FindingVulnerability|Unset):
 def format_policy_name(policy_condition: PolicyCondition | Unset):
     if isinstance(policy_condition, Unset):
         return "?"
-    return policy_condition.policy.name
+    return filter_unset(policy_condition.policy.name, "?")
 
 
 def print_findings_table(findings: list[Finding]):
