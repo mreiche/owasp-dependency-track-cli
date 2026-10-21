@@ -8,10 +8,11 @@ from owasp_dt.models import (
     Finding,
     FindingComponent,
     FindingVulnerability,
-    PolicyViolation,
+    PolicyViolation, PolicyCondition,
 )
+from owasp_dt.types import Unset
 from tabulate import tabulate
-from tinystream import Stream
+from tinystream import Stream, Opt
 
 from owasp_dt_cli import common, config, models
 
@@ -30,7 +31,10 @@ __state_color_map: dict[str, str] = {
 }
 
 
-def shorten(text: str, max_length: int = 100):
+def shorten(text: str | Unset, max_length: int = 100) -> str:
+    if isinstance(text, Unset):
+        return ""
+
     if len(text) > max_length:
         return text[:97] + "..."
     return text
@@ -46,7 +50,10 @@ def format_severity(severity: str):
     return color + severity + Style.RESET_ALL
 
 
-def format_violation_state(state: str):
+def format_violation_state(state: str | Unset):
+    if isinstance(state, Unset):
+       return "?"
+
     normalized = state.upper()
     if normalized in __state_color_map:
         color = __state_color_map[normalized]
@@ -55,29 +62,46 @@ def format_violation_state(state: str):
 
     return color + state + Style.RESET_ALL
 
+def filter_unset(param: any | Unset, default = None):
+    return Opt(param).filter(lambda x: not isinstance(x, Unset)).get(default)
 
-def format_component_version(component: FindingComponent | Component):
-    version = component.version
+def format_component_version(component: FindingComponent | Component | Unset):
+    if isinstance(component, Unset):
+        return "?"
+
+    version = filter_unset(component.version, "?")
     if isinstance(component, FindingComponent):
-        version += f" ({component.latest_version if component.latest_version else "?"})"
+        version += f" ({filter_unset(component.latest_version, "?")})"
 
     return version
 
 
-def format_component_identifier(component: FindingComponent | Component):
-    name = component.name
-    if component.group:
+def format_component_identifier(component: FindingComponent | Component | Unset):
+    if isinstance(component, Unset):
+        return "?"
+
+    name = filter_unset(component.name, "?")
+    if not isinstance(component.group, Unset):
         name = f"{component.group}.{name}"
 
     return name
 
 
-def format_scoring(vulnerability: FindingVulnerability):
+def format_scoring(vulnerability: FindingVulnerability|Unset):
+    if isinstance(vulnerability, Unset):
+        return "?"
+
     scores = [
-        str(vulnerability.cvss_v3_base_score) if vulnerability.cvss_v3_base_score else "?",
-        str(vulnerability.cvss_v2_base_score) if vulnerability.cvss_v2_base_score else "?",
+        str(filter_unset(vulnerability.cvss_v3_base_score, "?")),
+        str(filter_unset(vulnerability.cvss_v2_base_score, "?")),
     ]
-    return f"{format_severity(vulnerability.severity)} ({', '.join(scores)})"
+    return f"{format_severity(filter_unset(vulnerability.severity, "?"))} ({', '.join(scores)})"
+
+
+def format_policy_name(policy_condition: PolicyCondition | Unset):
+    if isinstance(policy_condition, Unset):
+        return "?"
+    return filter_unset(policy_condition.policy.name, "?") if policy_condition.policy else "?"
 
 
 def print_findings_table(findings: list[Finding]):
@@ -92,7 +116,7 @@ def print_findings_table(findings: list[Finding]):
         data.append([
             format_component_identifier(finding.component),
             format_component_version(finding.component),
-            f"{finding.vulnerability.vuln_id} ({shorten(finding.vulnerability.description)})",
+            f"{filter_unset(finding.vulnerability.vuln_id, "?")} ({shorten(finding.vulnerability.description)})" if finding.vulnerability else "?",
             format_scoring(finding.vulnerability),
         ])
     if len(data) > 0:
@@ -114,8 +138,8 @@ def print_violations_table(violations: list[PolicyViolation]):
         data.append([
             format_component_identifier(violation.component),
             format_component_version(violation.component),
-            violation.policy_condition.policy.name,
-            format_violation_state(violation.policy_condition.policy.violation_state.name),
+            violation.policy_condition.policy.name if violation.policy_condition and violation.policy_condition.policy and violation.policy_condition.policy.name else "?",
+            format_violation_state(violation.policy_condition.policy.violation_state.name) if violation.policy_condition and violation.policy_condition.policy and violation.policy_condition.policy.violation_state else "?",
         ])
     if len(data) > 0:
         print("POLICY VIOLATIONS")
