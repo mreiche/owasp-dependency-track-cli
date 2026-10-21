@@ -101,7 +101,7 @@ def format_scoring(vulnerability: FindingVulnerability|Unset):
 def format_policy_name(policy_condition: PolicyCondition | Unset):
     if isinstance(policy_condition, Unset):
         return "?"
-    return filter_unset(policy_condition.policy.name, "?")
+    return filter_unset(policy_condition.policy.name, "?") if policy_condition.policy else "?"
 
 
 def print_findings_table(findings: list[Finding]):
