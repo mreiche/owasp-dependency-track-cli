@@ -40,4 +40,5 @@ runs:
             - 'test/**'
           project:
             - 'pyproject.toml'
-            - '.github/**'
+            - '.github/workflows/**'
+            - '.github/actions/**'
