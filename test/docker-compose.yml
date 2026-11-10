@@ -15,7 +15,7 @@ services:
       - './init:/init:ro'
 
   apiserver:
-    image: dependencytrack/apiserver:5.1.0
+    image: dependencytrack/apiserver:5.2.1
     depends_on:
       init-keys:
         condition: service_completed_successfully
