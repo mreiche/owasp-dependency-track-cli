@@ -61,7 +61,7 @@ services:
     restart: unless-stopped
 
   trivy:
-    image: aquasec/trivy:0.69.3
+    image: aquasec/trivy:0.76.2
     command:
       - server
       - --listen
