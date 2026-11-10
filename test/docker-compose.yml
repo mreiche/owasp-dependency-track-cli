@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: dependencytrack/frontend:5.1.0
+    image: dependencytrack/frontend:5.2.1
     environment:
       API_BASE_URL: "http://localhost:8080"
     ports:
