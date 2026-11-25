@@ -92,6 +92,7 @@ def format_scoring(vulnerability: FindingVulnerability|Unset):
         return "?"
 
     scores = [
+        str(filter_unset(vulnerability.cvs, "?")),
         str(filter_unset(vulnerability.cvss_v3_base_score, "?")),
         str(filter_unset(vulnerability.cvss_v2_base_score, "?")),
     ]
