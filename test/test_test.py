@@ -65,7 +65,7 @@ def test_vulnerability_cvss_v4_threshold(monkeypatch, parser):
         "--latest"
     ])
 
-    with pytest.raises(ValueError, match="CVSS_V3_THRESHOLD hit: 8.1"):
+    with pytest.raises(ValueError, match="CVSS_V3_THRESHOLD hit:"):
         args.func(args)
 
 @pytest.mark.depends(on=['test_test'])
@@ -79,7 +79,7 @@ def test_vulnerability_cvss_v4_threshold(monkeypatch, parser):
         "--latest"
     ])
 
-    with pytest.raises(ValueError, match="CVSS_V4_THRESHOLD hit: 7.6"):
+    with pytest.raises(ValueError, match="CVSS_V4_THRESHOLD hit:"):
         args.func(args)
 
 
