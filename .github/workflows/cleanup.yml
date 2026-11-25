@@ -1,0 +1,16 @@
+name: Cleanup GHCR
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-26.04
+    permissions:
+      packages: write
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          delete-untagged: true
+          dry-run: false
