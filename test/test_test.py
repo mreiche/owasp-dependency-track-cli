@@ -55,8 +55,8 @@ def test_vulnerability_severity_threshold(monkeypatch, parser):
 
 
 @pytest.mark.depends(on=['test_test'])
-def test_vulnerability_cvss_v4_threshold(monkeypatch, parser):
-    monkeypatch.setenv("CVSS_V4_THRESHOLD", "1")
+def test_vulnerability_cvss_v3_threshold(monkeypatch, parser):
+    monkeypatch.setenv("CVSS_V3_THRESHOLD", "1")
 
     args = parser.parse_args([
         "analyze",
