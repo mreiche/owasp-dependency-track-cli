@@ -15,7 +15,7 @@ services:
       - './init:/init:ro'
 
   apiserver:
-    image: dependencytrack/apiserver:5.2.1
+    image: dependencytrack/apiserver:5.2.2
     depends_on:
       init-keys:
         condition: service_completed_successfully
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: dependencytrack/frontend:5.2.1
+    image: dependencytrack/frontend:5.2.2
     environment:
       API_BASE_URL: "http://localhost:8080"
     ports:
@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgres:18-alpine
+    image: postgres:19-alpine
     environment:
       POSTGRES_DB: "dtrack"
       POSTGRES_USER: "dtrack"

@@ -92,7 +92,7 @@ def format_scoring(vulnerability: FindingVulnerability|Unset):
         return "?"
 
     scores = [
-        str(filter_unset(vulnerability.cvs, "?")),
+        str(filter_unset(vulnerability.cvss_v4_score, "?")),
         str(filter_unset(vulnerability.cvss_v3_base_score, "?")),
         str(filter_unset(vulnerability.cvss_v2_base_score, "?")),
     ]
@@ -110,7 +110,7 @@ def print_findings_table(findings: list[Finding]):
         "Component",
         "Version (latest)",
         "Vulnerability",
-        "Severity (CVSS3, CVSS2)",
+        "Severity (CVSS4, CVSS3, CVSS2)",
     ]
     data = []
     for finding in findings:
@@ -177,6 +177,8 @@ def handle_report(args):
 def handle_thresholds(findings: list[Finding], violations: list[PolicyViolation]):
     severity_count: dict[str, int] = {}
     severity_threshold: dict[str, int] = {}
+    cvss_v4_total = 0
+    cvss_v4_threshold = int(config.getenv("CVSS_V4_THRESHOLD", "-1"))
     cvss_v3_total = 0
     cvss_v3_threshold = int(config.getenv("CVSS_V3_THRESHOLD", "-1"))
     cvss_v2_total = 0
@@ -192,6 +194,11 @@ def handle_thresholds(findings: list[Finding], violations: list[PolicyViolation]
         severity_count[severity] += 1
         if severity_count[severity] >= severity_threshold[severity] >= 0:
             raise ValueError(f"SEVERITY_THRESHOLD_{severity} hit: {severity_count[severity]}")
+
+        if vulnerability.cvss_v4_score:
+            cvss_v4_total += vulnerability.cvss_v4_score
+            if cvss_v4_total >= cvss_v4_threshold >= 0:
+                raise ValueError(f"CVSS_V4_THRESHOLD hit: {cvss_v4_total}")
 
         if vulnerability.cvss_v3_base_score:
             cvss_v3_total += vulnerability.cvss_v3_base_score
