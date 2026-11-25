@@ -11,7 +11,7 @@ requires-python = ">=3.13"
 dependencies = [
     "owasp-dependency-track-client==5.3.0",
     "is_empty==1.0.1",
-    "tinystream==0.1.18",
+    "tinystream==1.0.0",
     "tabulate==0.10.0",
     "colorama==0.4.6",
     "dotenv== 0.9.9",
